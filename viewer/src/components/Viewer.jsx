@@ -47,7 +47,6 @@ export const Viewer = ({ source, channelAxis = null, isLabel = false }) => {
           ...initLayerStateFromSource({
             id: 'raw',
             ...sourceData,
-            modelMatrix: new Matrix4().identity(),
             labels: [
               {
                 name: 'labels',
@@ -58,15 +57,10 @@ export const Viewer = ({ source, channelAxis = null, isLabel = false }) => {
         });
         return;
       }
-      // Enforce identity matrix for labels picking to work
-      const modelMatrix = !!sourceData.labels?.length
-        ? new Matrix4().identity()
-        : sourceData.model_matrix;
       setLayerState(
         initLayerStateFromSource({
           id: 'raw',
           ...sourceData,
-          model_matrix: modelMatrix,
         }),
       );
     }
