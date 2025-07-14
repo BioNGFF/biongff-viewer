@@ -39,7 +39,7 @@ export const useSourceData = (config) => {
 
         if (
           !isBioformats2rawlayout(ome || node.attrs) ||
-          isOmePlate(ome || {}) // if plate is present it takes precedence (https://ngff.openmicroscopy.org/0.4/#bf2raw-attributes)
+          isOmePlate(ome || node.attrs) // if plate is present it takes precedence (https://ngff.openmicroscopy.org/0.4/#bf2raw-attributes)
         ) {
           // use Vizarr's createSourceData with source as is
           const data = await createSourceData(config);

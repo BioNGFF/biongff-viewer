@@ -65,11 +65,11 @@ class GrayscaleBitmapLayer extends VizarrGrayscaleBitmapLayer {
     if (!info.coordinate) {
       return info;
     }
-    const { pixelData, bounds, modelMatrix } = this.props;
+    const { pixelData, bounds, modelMatrixInverse } = this.props;
     const { data, width, height } = pixelData;
     let [x, y] = info.coordinate;
-    if (!Matrix4.IDENTITY.equals(modelMatrix)) {
-      [x, y] = modelMatrix.clone().invert().transformPoint([x, y]);
+    if (!Matrix4.IDENTITY.equals(modelMatrixInverse)) {
+      [x, y] = modelMatrixInverse.transformPoint([x, y]);
     }
     const [left, bottom, right, top] = bounds;
 
@@ -181,6 +181,8 @@ export class LabelLayer extends TileLayer {
       // For underlying class
       image: new ImageData(data.width, data.height),
       pickable: pickable,
+      modelMatrixInverse:
+        props.modelMatrix && props.modelMatrix.clone().invert(),
     });
   }
 
