@@ -8,49 +8,54 @@ import FormGroup from '@mui/material/FormGroup';
 import Stack from '@mui/material/Stack';
 
 export const Controller = ({
-  layerState,
+  layerStates,
   resetViewState,
   toggleVisibility,
 }) => {
-  if (!layerState) {
-    return <></>;
-  }
+  const controls = layerStates.map((layerState, index) => {
+    if (!layerState) {
+      return <></>;
+    }
+    return (
+      <>
+        <p>Source {index}</p>
+        <FormControlLabel
+          key={layerState.layerProps.id}
+          label={layerState.layerProps.id}
+          control={
+            <Checkbox
+              label={layerState.id}
+              checked={layerState.on}
+              icon={<VisibilityOffIcon />}
+              checkedIcon={<VisibilityIcon />}
+              onChange={() => toggleVisibility(index)}
+            />
+          }
+        />
+        {layerState.labels?.map((label) => (
+          <FormControlLabel
+            key={label.layerProps.id}
+            label={`${label.layerProps.id} (label)`}
+            control={
+              <Checkbox
+                label={label.layerProps.id}
+                checked={label.on}
+                icon={<VisibilityOffIcon />}
+                checkedIcon={<VisibilityIcon />}
+                onChange={() => toggleVisibility(index, label.layerProps.id)}
+              />
+            }
+          />
+        ))}
+      </>
+    );
+  });
+
   return (
     <div className="viewer-controller">
       <Stack spacing={2}>
         <p>Layers</p>
-        <FormGroup>
-          {
-            <FormControlLabel
-              key={layerState.layerProps.id}
-              label={layerState.layerProps.id}
-              control={
-                <Checkbox
-                  label={layerState.id}
-                  checked={layerState.on}
-                  icon={<VisibilityOffIcon />}
-                  checkedIcon={<VisibilityIcon />}
-                  onChange={() => toggleVisibility()}
-                />
-              }
-            />
-          }
-          {layerState.labels?.map((label) => (
-            <FormControlLabel
-              key={label.layerProps.id}
-              label={`${label.layerProps.id} (label)`}
-              control={
-                <Checkbox
-                  label={label.layerProps.id}
-                  checked={label.on}
-                  icon={<VisibilityOffIcon />}
-                  checkedIcon={<VisibilityIcon />}
-                  onChange={() => toggleVisibility(label.layerProps.id)}
-                />
-              }
-            />
-          ))}
-        </FormGroup>
+        <FormGroup>{controls}</FormGroup>
         <button type="button" className="btn" onClick={resetViewState}>
           Reset view
         </button>

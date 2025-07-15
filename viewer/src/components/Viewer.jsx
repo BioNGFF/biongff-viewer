@@ -14,6 +14,7 @@ import {
   isInterleaved,
   resolveLoaderFromLayerProps,
 } from '@hms-dbmi/vizarr/src/utils';
+import LinearProgress from '@mui/material/LinearProgress';
 import DeckGL, { OrthographicView } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
 
@@ -27,96 +28,111 @@ const LayerStateMap = {
   multiscale: MultiscaleImageLayer,
 };
 
-export const Viewer = ({ source, channelAxis = null, isLabel = false }) => {
+export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
-  const [config] = useState({
-    source: source || null,
-    ...(channelAxis ? { channel_axis: parseInt(channelAxis) } : {}),
-  });
+  const [configs] = useState(
+    sources.map((source, index) => ({
+      source: source,
+      ...(channelAxis?.[index]
+        ? { channel_axis: parseInt(channelAxis[index]) }
+        : {}),
+      isLabel: isLabel?.[index] ? parseInt(isLabel[index]) : false,
+    })),
+  );
 
-  const { sourceData, error: sourceError } = useSourceData(config);
-  const [layerState, setLayerState] = useState(null);
+  const {
+    sourceData,
+    errors: sourceErrors,
+    isLoading,
+  } = useSourceData(configs);
+  const [layerStates, setLayerStates] = useState([]);
 
   useEffect(() => {
-    if (sourceData) {
-      if (isLabel) {
-        // To load standalone label, replicate in source and nest in labels
-        // Needs source ImageLayer, LabelLayer has no loader
-        setLayerState({
-          ...initLayerStateFromSource({
-            id: 'raw',
-            ...sourceData,
-            labels: [
-              {
-                name: 'labels',
-                loader: sourceData.loader,
-              },
-            ],
-          }),
+    if (!isLoading) {
+      sourceErrors.forEach((error, index) => {
+        if (error) {
+          console.warn(`Error fetching source ${index}`, error);
+        }
+      });
+      const ls = sourceData.map((d, index) => {
+        if (!d) return null;
+        return initLayerStateFromSource({
+          id: `raw-${index}`,
+          ...d,
+          labels: d.isLabel
+            ? [
+                // To load standalone label, replicate in source and nest in labels
+                // Needs source ImageLayer, LabelLayer has no loader
+                {
+                  name: 'labels',
+                  loader: d.loader,
+                },
+              ]
+            : d.labels,
         });
-        return;
-      }
-      setLayerState(
-        initLayerStateFromSource({
-          id: 'raw',
-          ...sourceData,
-        }),
-      );
+      });
+      setLayerStates(ls);
     }
-  }, [isLabel, sourceData]);
+  }, [isLoading, sourceData, sourceErrors]);
 
   const layers = useMemo(() => {
-    if (layerState?.layerProps?.loader || layerState?.layerProps?.loaders) {
-      const { on } = layerState;
-      if (isLabel) {
-        // @TODO: fix how controller lists layers
-        return [
-          new MultiscaleImageLayer({
-            ...layerState.layerProps,
-            visible: false,
-            excludeBackground: true,
-          }),
-          on
-            ? new LabelLayer({
-                ...layerState.labels[0].layerProps,
-                modelMatrix: layerState.layerProps.modelMatrix,
-                selection: layerState.labels[0].transformSourceSelection(
-                  layerState.layerProps.selections[0],
-                ),
-                pickable: true,
-              })
-            : null,
-        ];
-      }
-      return [
-        new LayerStateMap[layerState.kind]({
-          ...layerState.layerProps,
-          visible: on,
-          pickable: false,
-          ...(layerState.kind === 'multiscale'
-            ? { excludeBackground: true }
-            : {}),
-        }),
-        ...(layerState.labels?.length
-          ? layerState.labels?.map((label) => {
-              const { on: labelOn } = label;
-              return labelOn
+    return layerStates
+      .map((layerState, index) => {
+        if (!layerState) return null;
+        if (layerState?.layerProps?.loader || layerState?.layerProps?.loaders) {
+          const { on } = layerState;
+          if (isLabel?.[index]) {
+            // @TODO: fix how controller lists layers
+            return [
+              new MultiscaleImageLayer({
+                ...layerState.layerProps,
+                visible: false,
+                excludeBackground: true,
+              }),
+              on
                 ? new LabelLayer({
-                    ...label.layerProps,
+                    ...layerState.labels[0].layerProps,
                     modelMatrix: layerState.layerProps.modelMatrix,
                     selection: layerState.labels[0].transformSourceSelection(
                       layerState.layerProps.selections[0],
                     ),
                     pickable: true,
                   })
-                : null;
-            })
-          : []),
-      ];
-    }
-    return [];
-  }, [isLabel, layerState]);
+                : null,
+            ];
+          }
+          return [
+            new LayerStateMap[layerState.kind]({
+              ...layerState.layerProps,
+              visible: on,
+              pickable: false,
+              ...(layerState.kind === 'multiscale'
+                ? { excludeBackground: true }
+                : {}),
+            }),
+            ...(layerState.labels?.length
+              ? layerState.labels?.map((label) => {
+                  const { on: labelOn } = label;
+                  return labelOn
+                    ? new LabelLayer({
+                        ...label.layerProps,
+                        modelMatrix: layerState.layerProps.modelMatrix,
+                        selection:
+                          layerState.labels[0].transformSourceSelection(
+                            layerState.layerProps.selections[0],
+                          ),
+                        pickable: true,
+                      })
+                    : null;
+                })
+              : []),
+          ];
+        }
+        return [];
+      })
+      .flat();
+  }, [isLabel, layerStates]);
 
   const resetViewState = useCallback(() => {
     const { deck } = deckRef.current;
@@ -143,53 +159,60 @@ export const Viewer = ({ source, channelAxis = null, isLabel = false }) => {
     };
   };
 
-  const toggleVisibility = (label = null) => {
+  const toggleVisibility = (index, label = null) => {
     if (!label) {
-      setLayerState((prev) => ({
-        ...prev,
-        on: !prev.on,
-      }));
+      setLayerStates((prev) => {
+        return prev.map((state, i) => {
+          if (i !== index) return state;
+          return {
+            ...state,
+            on: !state.on,
+          };
+        });
+      });
     } else {
-      setLayerState((prev) => ({
-        ...prev,
-        labels: prev.labels.map((l) => {
-          if (l.layerProps.id === label) {
-            return {
-              ...l,
-              on: !l.on,
-            };
-          }
-          return l;
-        }),
-      }));
+      setLayerStates((prev) => {
+        return prev.map((state, i) => {
+          if (i !== index) return state;
+          return {
+            ...state,
+            labels: state.labels.map((l) => {
+              if (l.layerProps.id !== label) return l;
+              return {
+                ...l,
+                on: !l.on,
+              };
+            }),
+          };
+        });
+      });
     }
   };
 
-  if (sourceError) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        {sourceError.message}
-      </div>
-    );
-  } else {
+  if (isLoading) {
     return (
       <div>
-        <Controller
-          layerState={layerState}
-          resetViewState={resetViewState}
-          toggleVisibility={toggleVisibility}
-        />
-        <DeckGL
-          ref={deckRef}
-          layers={layers}
-          viewState={viewState && { ortho: viewState }}
-          onViewStateChange={(e) => setViewState(e.viewState)}
-          views={[new OrthographicView({ id: 'ortho', controller: true })]}
-          getTooltip={getTooltip}
-        />
+        <LinearProgress thickness={1} />
       </div>
     );
   }
+  return (
+    <div>
+      <Controller
+        layerStates={layerStates}
+        resetViewState={resetViewState}
+        toggleVisibility={toggleVisibility}
+      />
+      <DeckGL
+        ref={deckRef}
+        layers={layers}
+        viewState={viewState && { ortho: viewState }}
+        onViewStateChange={(e) => setViewState(e.viewState)}
+        views={[new OrthographicView({ id: 'ortho', controller: true })]}
+        getTooltip={getTooltip}
+      />
+    </div>
+  );
 };
 
 // from vizarr Viewer
