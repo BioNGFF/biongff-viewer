@@ -28,7 +28,12 @@ const LayerStateMap = {
   multiscale: MultiscaleImageLayer,
 };
 
-export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
+export const Viewer = ({
+  sources,
+  channelAxis = [],
+  isLabel = [],
+  modelMatrices = [],
+}) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
   const [configs] = useState(
@@ -69,11 +74,12 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
                 },
               ]
             : d.labels,
+          model_matrix: modelMatrices?.[index] || d.modelMatrix,
         });
       });
       setLayerStates(ls);
     }
-  }, [isLabel, isLoading, sourceData, sourceErrors]);
+  }, [isLabel, isLoading, modelMatrices, sourceData, sourceErrors]);
 
   const layers = useMemo(() => {
     return layerStates

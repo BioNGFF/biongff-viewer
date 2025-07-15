@@ -1,6 +1,8 @@
 import React from 'react';
 
 import './App.css';
+import { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
+
 import { Viewer } from './components/Viewer.jsx';
 
 function App() {
@@ -11,10 +13,18 @@ function App() {
   const isLabel = url.searchParams
     .getAll('isLabel', 0)
     .map((v) => !!parseInt(v));
+  const modelMatrices = url.searchParams
+    .getAll('modelMatrix')
+    .map((v) => parseMatrix(v));
 
   return (
     <>
-      <Viewer sources={sources} channelAxis={channelAxis} isLabel={isLabel} />
+      <Viewer
+        sources={sources}
+        channelAxis={channelAxis}
+        isLabel={isLabel}
+        modelMatrices={modelMatrices}
+      />
     </>
   );
 }
