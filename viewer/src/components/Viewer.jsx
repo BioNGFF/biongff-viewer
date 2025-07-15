@@ -145,10 +145,11 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
     );
   }, [layers]);
 
-  // @TODO: fix intermittent error with layer update
-  if (deckRef.current?.deck && !viewState && layers?.[0]) {
-    resetViewState();
-  }
+  useEffect(() => {
+    if (deckRef.current?.deck && !viewState && layers?.[0]) {
+      resetViewState();
+    }
+  }, [layers, resetViewState, viewState]);
 
   const getTooltip = ({ layer, index, value }) => {
     if (!layer || !index) {
