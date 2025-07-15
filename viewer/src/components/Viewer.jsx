@@ -37,7 +37,6 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
       ...(channelAxis?.[index]
         ? { channel_axis: parseInt(channelAxis[index]) }
         : {}),
-      isLabel: isLabel?.[index] ? parseInt(isLabel[index]) : false,
     })),
   );
 
@@ -60,7 +59,7 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
         return initLayerStateFromSource({
           id: `raw-${index}`,
           ...d,
-          labels: d.isLabel
+          labels: isLabel?.[index]
             ? [
                 // To load standalone label, replicate in source and nest in labels
                 // Needs source ImageLayer, LabelLayer has no loader
@@ -74,7 +73,7 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
       });
       setLayerStates(ls);
     }
-  }, [isLoading, sourceData, sourceErrors]);
+  }, [isLabel, isLoading, sourceData, sourceErrors]);
 
   const layers = useMemo(() => {
     return layerStates
@@ -146,6 +145,7 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
     );
   }, [layers]);
 
+  // @TODO: fix intermittent error with layer update
   if (deckRef.current?.deck && !viewState && layers?.[0]) {
     resetViewState();
   }

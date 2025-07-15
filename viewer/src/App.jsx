@@ -8,7 +8,9 @@ function App() {
 
   const sources = url.searchParams.getAll('source');
   const channelAxis = url.searchParams.getAll('channelAxis');
-  const isLabel = !!parseInt(url.searchParams.getAll('isLabel', 0));
+  const isLabel = url.searchParams
+    .getAll('isLabel', 0)
+    .map((v) => !!parseInt(v));
 
   return (
     <>
