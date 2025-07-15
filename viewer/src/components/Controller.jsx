@@ -14,10 +14,10 @@ export const Controller = ({
 }) => {
   const controls = layerStates.map((layerState, index) => {
     if (!layerState) {
-      return <></>;
+      return null;
     }
     return (
-      <>
+      <React.Fragment key={layerState.layerProps.id}>
         <p>Source {index}</p>
         <FormControlLabel
           key={layerState.layerProps.id}
@@ -47,7 +47,7 @@ export const Controller = ({
             }
           />
         ))}
-      </>
+      </React.Fragment>
     );
   });
 
