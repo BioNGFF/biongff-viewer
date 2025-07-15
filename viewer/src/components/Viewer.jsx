@@ -190,6 +190,42 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
     }
   };
 
+  const setLayerOpacity = (index, label = null, opacity) => {
+    if (!label) {
+      setLayerStates((prev) => {
+        return prev.map((state, i) => {
+          if (i !== index) return state;
+          return {
+            ...state,
+            layerProps: {
+              ...state.layerProps,
+              opacity: opacity,
+            },
+          };
+        });
+      });
+    } else {
+      setLayerStates((prev) => {
+        return prev.map((state, i) => {
+          if (i !== index) return state;
+          return {
+            ...state,
+            labels: state.labels.map((l) => {
+              if (l.layerProps.id !== label) return l;
+              return {
+                ...l,
+                layerProps: {
+                  ...l.layerProps,
+                  opacity: opacity,
+                },
+              };
+            }),
+          };
+        });
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div>
@@ -203,6 +239,7 @@ export const Viewer = ({ sources, channelAxis = [], isLabel = [] }) => {
         layerStates={layerStates}
         resetViewState={resetViewState}
         toggleVisibility={toggleVisibility}
+        setLayerOpacity={setLayerOpacity}
       />
       <DeckGL
         ref={deckRef}

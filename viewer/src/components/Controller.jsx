@@ -5,12 +5,25 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
+
+const OpactiySlider = ({ value, onChange }) => (
+  <Slider
+    size="small"
+    min={0}
+    max={1}
+    step={0.01}
+    value={value}
+    onChange={onChange}
+  />
+);
 
 export const Controller = ({
   layerStates,
   resetViewState,
   toggleVisibility,
+  setLayerOpacity,
 }) => {
   const controls = layerStates.map((layerState, index) => {
     if (!layerState) {
@@ -32,20 +45,32 @@ export const Controller = ({
             />
           }
         />
+        <OpactiySlider
+          value={layerState.layerProps.opacity}
+          onChange={(e, value) => setLayerOpacity(index, null, value)}
+        />
         {layerState.labels?.map((label) => (
-          <FormControlLabel
-            key={label.layerProps.id}
-            label={`${label.layerProps.id} (label)`}
-            control={
-              <Checkbox
-                label={label.layerProps.id}
-                checked={label.on}
-                icon={<VisibilityOffIcon />}
-                checkedIcon={<VisibilityIcon />}
-                onChange={() => toggleVisibility(index, label.layerProps.id)}
-              />
-            }
-          />
+          <React.Fragment key={label.layerProps.id}>
+            <FormControlLabel
+              key={label.layerProps.id}
+              label={`${label.layerProps.id} (label)`}
+              control={
+                <Checkbox
+                  label={label.layerProps.id}
+                  checked={label.on}
+                  icon={<VisibilityOffIcon />}
+                  checkedIcon={<VisibilityIcon />}
+                  onChange={() => toggleVisibility(index, label.layerProps.id)}
+                />
+              }
+            />
+            <OpactiySlider
+              value={label.layerProps.opacity}
+              onChange={(e, value) =>
+                setLayerOpacity(index, label.layerProps.id, value)
+              }
+            />
+          </React.Fragment>
         ))}
       </React.Fragment>
     );
