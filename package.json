@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "pnpm --filter viewer dev",
     "lint": "pnpm --filter viewer lint",
-    "lint:fix": "pnpm --filter viewer lint:fix"
+    "lint:fix": "pnpm --filter viewer lint:fix",
+    "build": "pnpm --filter viewer build --base ./ --outDir ../dist"
   },
   "browserslist": {
     "production": [
