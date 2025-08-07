@@ -63,7 +63,7 @@ class GrayscaleBitmapLayer extends VizarrGrayscaleBitmapLayer {
     const { pixelData, bounds, modelMatrixInverse } = this.props;
     const { data, width, height } = pixelData;
     let [x, y] = info.coordinate;
-    if (!Matrix4.IDENTITY.equals(modelMatrixInverse)) {
+    if (modelMatrixInverse && !Matrix4.IDENTITY.equals(modelMatrixInverse)) {
       [x, y] = modelMatrixInverse.transformPoint([x, y]);
     }
     const [left, bottom, right, top] = bounds;
