@@ -92,6 +92,77 @@ class GrayscaleBitmapLayer extends VizarrGrayscaleBitmapLayer {
     };
     return info;
   }
+
+  // Temporary workaround for ANGLE bug https://issues.angleproject.org/issues/401546698
+  // "Error during validation: Two textures of different types use the same sampler location."
+  // Force grayscaleTexture to float32 to use sampler2D
+  getShaders() {
+    // const sampler = (
+    //   {
+    //     Uint8Array: "usampler2D",
+    //     Uint16Array: "usampler2D",
+    //     Uint32Array: "usampler2D",
+    //     Int8Array: "isampler2D",
+    //     Int16Array: "isampler2D",
+    //     Int32Array: "isampler2D",
+    //   }
+    // )[typedArrayConstructorName(this.props.pixelData.data)];
+    const sampler = 'sampler2D'; // Use sampler2D for ANGLE bug workaround
+    // replace the builtin fragment shader with our own
+    return {
+      ...super.getShaders(),
+      fs: `\
+#version 300 es
+#define SHADER_NAME grayscale-bitmap-layer-fragment-shader
+
+precision highp float;
+precision highp int;
+precision highp ${sampler};
+
+uniform ${sampler} grayscaleTexture;
+uniform sampler2D colorTexture;
+uniform float colorTextureWidth;
+uniform float colorTextureHeight;
+uniform float opacity;
+
+in vec2 vTexCoord;
+out vec4 fragColor;
+
+void main() {
+  int index = int(texture(grayscaleTexture, vTexCoord).r);
+  if (index < 0) discard;
+  float x = (mod(float(index), colorTextureWidth) + 0.5) / colorTextureWidth;
+  float y = (floor(float(index) / colorTextureWidth) + 0.5) / colorTextureHeight;
+  vec2 uv = vec2(x, y);
+  vec3 color = texture(colorTexture, uv).rgb;
+  fragColor = vec4(color, ((index > 0) ? 1.0 : 0.0) * opacity);
+}
+`,
+    };
+  }
+
+  updateState({ props, oldProps, changeFlags, ...rest }) {
+      super.updateState({ props, oldProps, changeFlags, ...rest });
+      if (props.pixelData !== oldProps.pixelData) {
+        this.state.texture?.destroy();
+        this.setState({
+          texture: this.context.device.createTexture({
+            width: props.pixelData.width,
+            height: props.pixelData.height,
+            data: new Float32Array(props.pixelData.data), // Force float32 for ANGLE bug workaround
+            dimension: "2d",
+            mipmaps: false,
+            sampler: {
+              minFilter: "nearest",
+              magFilter: "nearest",
+              addressModeU: "clamp-to-edge",
+              addressModeV: "clamp-to-edge",
+            },
+            format: "r32float", // Force float32 for ANGLE bug workaround
+          }),
+        });
+      }
+    }
 }
 
 export class LabelLayer extends TileLayer {
