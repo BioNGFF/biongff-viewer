@@ -13,7 +13,9 @@ import {
   getXmlDom,
   getZarrJson,
   getZarrMetadata,
+  loadOmeImageLabel,
   parseXml,
+  resolveOmeLabelsFromMultiscales,
 } from './utils';
 
 export const useSourceData = (config) => {
@@ -43,6 +45,16 @@ export const useSourceData = (config) => {
         ) {
           // use Vizarr's createSourceData with source as is
           const data = await createSourceData(config);
+
+          // use custom resolveOmeLabelsFromMultiscales for version 0.5
+          if (ome?.version === "0.5") {
+            const labels = await resolveOmeLabelsFromMultiscales(node);
+            setSourceData({
+              ...data,
+              labels: await Promise.all(labels.map((name) => loadOmeImageLabel(node.resolve("labels"), name))),
+              })
+              return;
+          }
           setSourceData(data);
           return;
         }
