@@ -5,37 +5,52 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
+import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 
+const OpactiySlider = ({ value, onChange }) => (
+  <Slider
+    size="small"
+    min={0}
+    max={1}
+    step={0.01}
+    value={value}
+    onChange={onChange}
+  />
+);
+
 export const Controller = ({
-  layerState,
+  layerStates,
   resetViewState,
   toggleVisibility,
+  setLayerOpacity,
 }) => {
-  if (!layerState) {
-    return <></>;
-  }
-  return (
-    <div className="viewer-controller">
-      <Stack spacing={2}>
-        <p>Layers</p>
-        <FormGroup>
-          {
-            <FormControlLabel
-              key={layerState.layerProps.id}
-              label={layerState.layerProps.id}
-              control={
-                <Checkbox
-                  label={layerState.id}
-                  checked={layerState.on}
-                  icon={<VisibilityOffIcon />}
-                  checkedIcon={<VisibilityIcon />}
-                  onChange={() => toggleVisibility()}
-                />
-              }
+  const controls = layerStates.map((layerState, index) => {
+    if (!layerState) {
+      return null;
+    }
+    return (
+      <React.Fragment key={layerState.layerProps.id}>
+        <p>Source {index}</p>
+        <FormControlLabel
+          key={layerState.layerProps.id}
+          label={layerState.layerProps.id}
+          control={
+            <Checkbox
+              label={layerState.id}
+              checked={layerState.on}
+              icon={<VisibilityOffIcon />}
+              checkedIcon={<VisibilityIcon />}
+              onChange={() => toggleVisibility(index)}
             />
           }
-          {layerState.labels?.map((label) => (
+        />
+        <OpactiySlider
+          value={layerState.layerProps.opacity}
+          onChange={(e, value) => setLayerOpacity(index, null, value)}
+        />
+        {layerState.labels?.map((label) => (
+          <React.Fragment key={label.layerProps.id}>
             <FormControlLabel
               key={label.layerProps.id}
               label={`${label.layerProps.id} (label)`}
@@ -45,12 +60,27 @@ export const Controller = ({
                   checked={label.on}
                   icon={<VisibilityOffIcon />}
                   checkedIcon={<VisibilityIcon />}
-                  onChange={() => toggleVisibility(label.layerProps.id)}
+                  onChange={() => toggleVisibility(index, label.layerProps.id)}
                 />
               }
             />
-          ))}
-        </FormGroup>
+            <OpactiySlider
+              value={label.layerProps.opacity}
+              onChange={(e, value) =>
+                setLayerOpacity(index, label.layerProps.id, value)
+              }
+            />
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    );
+  });
+
+  return (
+    <div className="viewer-controller">
+      <Stack spacing={2}>
+        <p>Layers</p>
+        <FormGroup>{controls}</FormGroup>
         <button type="button" className="btn" onClick={resetViewState}>
           Reset view
         </button>
