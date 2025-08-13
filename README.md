@@ -8,6 +8,7 @@ Clone repo and submodules
 
 ```sh
 git clone git@github.com:BioNGFF/biongff-viewer.git
+cd biongff-viewer
 git submodule init
 git submodule update
 ```
