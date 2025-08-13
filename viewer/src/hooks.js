@@ -13,7 +13,9 @@ import {
   getXmlDom,
   getZarrJson,
   getZarrMetadata,
+  loadOmeImageLabel,
   parseXml,
+  resolveOmeLabelsFromMultiscales,
 } from './utils';
 
 const fetchSourceData = async (config) => {
@@ -37,6 +39,15 @@ const fetchSourceData = async (config) => {
       isOmePlate(ome || node.attrs) // if plate is present it takes precedence (https://ngff.openmicroscopy.org/0.4/#bf2raw-attributes)
     ) {
       // use Vizarr's createSourceData with source as is
+
+      if (ome?.version === "0.5") {
+        const sourceData = await createSourceData(config);
+        const labels = await resolveOmeLabelsFromMultiscales(node);
+        sourceData.labels = await Promise.all(
+          labels.map((name) => loadOmeImageLabel(node.resolve('labels'), name)),
+        );
+        return sourceData;
+      }
       return await createSourceData(config);
     }
 
