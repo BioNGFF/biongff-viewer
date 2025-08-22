@@ -33,6 +33,7 @@ export const Viewer = ({
   channelAxis = null,
   isLabel = null,
   modelMatrices = null,
+  colors = null,
 }) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
@@ -105,6 +106,8 @@ export const Viewer = ({
                       layerState.layerProps.selections[0],
                     ),
                     pickable: true,
+                    colors:
+                      colors?.[index] || layerState.labels[0].layerProps.colors,
                   })
                 : null,
             ];
@@ -130,6 +133,7 @@ export const Viewer = ({
                             layerState.layerProps.selections[0],
                           ),
                         pickable: true,
+                        colors: colors?.[index] || label.layerProps.colors,
                       })
                     : null;
                 })
@@ -139,7 +143,7 @@ export const Viewer = ({
         return [];
       })
       .flat();
-  }, [isLabel, layerStates]);
+  }, [colors, isLabel, layerStates]);
 
   const resetViewState = useCallback(() => {
     const { deck } = deckRef.current;

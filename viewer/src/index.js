@@ -1,4 +1,2 @@
-import { Viewer } from './components/Viewer';
-import { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
-
-export { Viewer, parseMatrix };
+export { Viewer } from './components/Viewer';
+export { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
