@@ -74,7 +74,7 @@ export const Viewer = ({
                 },
               ]
             : d.labels,
-          model_matrix: modelMatrices?.[index] || d.modelMatrix,
+          model_matrix: modelMatrices?.[index] || d.model_matrix,
         });
       });
       setLayerStates(ls);
