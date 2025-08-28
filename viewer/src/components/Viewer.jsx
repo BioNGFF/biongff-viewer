@@ -232,6 +232,35 @@ export const Viewer = ({
     }
   };
 
+  const { near, far } = useMemo(() => {
+    if (!layers?.length) {
+      return { near: 0.1, far: 1000 };
+    }
+
+    const zs = layers.flatMap((layer) => {
+      const { modelMatrix: matrix } = layer?.props || {};
+      if (!matrix) {
+        return null;
+      }
+      const { width, height } = getLayerSize(layers[0]);
+      const corners = [
+        [0, 0, 0],
+        [width, 0, 0],
+        [width, height, 0],
+        [0, height, 0],
+      ].map((corner) => matrix.transformAsPoint(corner)[2]);
+      return corners;
+    });
+
+    const minZ = Math.min(...zs);
+    const maxZ = Math.max(...zs);
+
+    return {
+      near: maxZ ? -10000 * maxZ : 0.1,
+      far: minZ ? 1000 * minZ : 1000,
+    };
+  }, [layers]);
+
   if (isLoading) {
     return (
       <div>
@@ -252,7 +281,9 @@ export const Viewer = ({
         layers={layers}
         viewState={viewState && { ortho: viewState }}
         onViewStateChange={(e) => setViewState(e.viewState)}
-        views={[new OrthographicView({ id: 'ortho', controller: true })]}
+        views={[
+          new OrthographicView({ id: 'ortho', controller: true, near, far }),
+        ]}
         getTooltip={getTooltip}
       />
     </div>
