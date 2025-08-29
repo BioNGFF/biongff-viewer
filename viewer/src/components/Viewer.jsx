@@ -240,7 +240,7 @@ export const Viewer = ({
     const zs = layers.flatMap((layer) => {
       const { modelMatrix: matrix } = layer?.props || {};
       if (!matrix) {
-        return null;
+        return [];
       }
       const { width, height } = getLayerSize(layers[0]);
       const corners = [
@@ -256,8 +256,8 @@ export const Viewer = ({
     const maxZ = Math.max(...zs);
 
     return {
-      near: maxZ ? -10000 * maxZ : 0.1,
-      far: minZ ? 1000 * minZ : 1000,
+      near: maxZ ? -10000 * Math.abs(maxZ) : 0.1,
+      far: minZ ? 10000 * Math.abs(minZ) : 1000,
     };
   }, [layers]);
 
