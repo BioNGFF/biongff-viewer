@@ -1,4 +1,6 @@
-import { open } from 'zarrita';
+import { open, NodeNotFoundError } from 'zarrita';
+import * as utils from '@hms-dbmi/vizarr/src/utils';
+import { ZarrPixelSource } from '@hms-dbmi/vizarr/src/ZarrPixelSource';
 
 export async function getZarrJson(location, path = '') {
   const jsonUrl = `${location.replace(/\/?$/, '/')}${path ? path.replace(/\/?$/, '/') : ''}zarr.json`;
@@ -115,4 +117,34 @@ export function transformBox(bbox, modelMatrix) {
     Math.max(...transformedCoords.map((i) => i[1])),
   ];
   return transformedBox;
+}
+
+// From vizarr utils
+// Workaround for verson 0.5
+export async function resolveOmeLabelsFromMultiscales(grp) {
+  return open(grp.resolve("labels"), { kind: "group" })
+    .then(({ attrs }) => (utils.resolveAttrs(attrs).labels ?? [])) // use resolveAttrs to use ome if present
+    .catch((e) => {
+      utils.rethrowUnless(e, NodeNotFoundError);
+      return [];
+    });
+}
+
+export async function loadOmeImageLabel(root, name) {
+  const grp = await open(root.resolve(name), { kind: "group" });
+  const attrs = utils.resolveAttrs(grp.attrs);
+  utils.assert(utils.isOmeImageLabel(attrs), "No 'image-label' metadata.");
+  const data = await utils.loadMultiscales(grp, attrs.multiscales);
+  const baseResolution = data.at(0);
+  utils.assert(baseResolution, "No base resolution found for multiscale labels.");
+  const tileSize = utils.guessTileSize(baseResolution);
+  const axes = utils.getNgffAxes(attrs.multiscales);
+  const labels = utils.getNgffAxisLabels(axes);
+  const colors = (attrs["image-label"].colors ?? []).map((d) => ({ labelValue: d["label-value"], rgba: d.rgba }));
+  return {
+    name,
+    modelMatrix: utils.coordinateTransformationsToMatrix(attrs.multiscales),
+    loader: data.map((arr) => new ZarrPixelSource(arr, { labels, tileSize })),
+    colors: colors.length > 0 ? colors : undefined,
+  };
 }
