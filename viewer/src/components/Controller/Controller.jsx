@@ -5,25 +5,18 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
-import Slider from '@mui/material/Slider';
 import Stack from '@mui/material/Stack';
 
-const OpactiySlider = ({ value, onChange }) => (
-  <Slider
-    size="small"
-    min={0}
-    max={1}
-    step={0.01}
-    value={value}
-    onChange={onChange}
-  />
-);
+import { AxisSliders } from './AxisSliders';
+import { OpactiySlider } from './OpacitySlider';
 
 export const Controller = ({
+  sourceData,
   layerStates,
   resetViewState,
   toggleVisibility,
   setLayerOpacity,
+  setLayerSelections,
 }) => {
   const controls = layerStates.map((layerState, index) => {
     if (!layerState) {
@@ -44,6 +37,11 @@ export const Controller = ({
               onChange={() => toggleVisibility(index)}
             />
           }
+        />
+        <AxisSliders
+          {...sourceData[index]}
+          selections={layerState.layerProps.selections}
+          onChange={(selections) => setLayerSelections(index, selections)}
         />
         <OpactiySlider
           value={layerState.layerProps.opacity}

@@ -1,9 +1,17 @@
 import React from 'react';
 
-import './App.css';
 import { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 import { Viewer } from './components/Viewer.jsx';
+import './App.css';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function App() {
   const url = new URL(window.location.href);
@@ -18,14 +26,17 @@ function App() {
     .map((v) => parseMatrix(v));
 
   return (
-    <>
-      <Viewer
-        sources={sources}
-        channelAxis={channelAxis}
-        isLabel={isLabel}
-        modelMatrices={modelMatrices}
-      />
-    </>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <div className="App">
+        <Viewer
+          sources={sources}
+          channelAxis={channelAxis}
+          isLabel={isLabel}
+          modelMatrices={modelMatrices}
+        />
+      </div>
+    </ThemeProvider>
   );
 }
 
