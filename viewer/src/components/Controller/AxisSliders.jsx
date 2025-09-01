@@ -10,7 +10,7 @@ const AxisSlider = ({ axis_labels, axisIndex, selections, max, onChange }) => {
   const axisLabel = axis_labels[axisIndex];
 
   useEffect(() => {
-    setValue(selections[0]?.[axisIndex] || 1);
+    setValue(selections[0] ? selections[0][axisIndex] : 1);
   }, [selections, axisIndex]);
 
   const setSelections = (v = value) => {
