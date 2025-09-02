@@ -247,6 +247,44 @@ export const Viewer = ({
     });
   };
 
+  const toggleChannelVisibility = (index, channelIndex) => {
+    setLayerStates((prev) => {
+      return prev.map((state, i) => {
+        if (i !== index) return state;
+        return {
+          ...state,
+          layerProps: {
+            ...state.layerProps,
+            channelsVisible: state.layerProps.channelsVisible.map(
+              (visible, j) => {
+                if (j !== channelIndex) return visible;
+                return !visible;
+              },
+            ),
+          },
+        };
+      });
+    });
+  };
+
+  const setChannelContrast = (index, channelIndex, contrastLimits) => {
+    setLayerStates((prev) => {
+      return prev.map((state, i) => {
+        if (i !== index) return state;
+        return {
+          ...state,
+          layerProps: {
+            ...state.layerProps,
+            contrastLimits: state.layerProps.contrastLimits.map((cl, j) => {
+              if (j !== channelIndex) return cl;
+              return contrastLimits;
+            }),
+          },
+        };
+      });
+    });
+  };
+
   if (isLoading) {
     return (
       <div>
@@ -263,6 +301,8 @@ export const Viewer = ({
         toggleVisibility={toggleVisibility}
         setLayerOpacity={setLayerOpacity}
         setLayerSelections={setLayerSelections}
+        toggleChannelVisibility={toggleChannelVisibility}
+        setChannelContrast={setChannelContrast}
       />
       <DeckGL
         ref={deckRef}

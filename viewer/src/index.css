@@ -28,6 +28,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  overflow: hidden;
 }
 
 h1 {
@@ -73,6 +74,12 @@ button:focus-visible {
   left: 1rem;
   z-index: 1;
   padding: 0.5rem;
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 200px;
+  padding-right: 15px;
+  box-sizing: border-box;
 }
 
 .viewer-matrix {
