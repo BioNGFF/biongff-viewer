@@ -72,9 +72,9 @@ button:focus-visible {
   position: absolute;
   top: 1rem;
   left: 1rem;
+  bottom: 1rem;
   z-index: 1;
   padding: 0.5rem;
-  max-height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
   width: 200px;

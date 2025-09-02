@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
 import { AxisSliders } from './AxisSliders';
-import { ChannelController } from './ChannelController';
+import { ChannelControllers } from './ChannelControllers';
 import { OpactiySlider } from './OpacitySlider';
 
 export const Controller = ({
@@ -27,7 +27,6 @@ export const Controller = ({
     if (!layerState) {
       return null;
     }
-    const nChannels = layerState.layerProps.selections.length;
     return (
       <React.Fragment key={layerState.layerProps.id}>
         <p>Source {index}</p>
@@ -55,20 +54,14 @@ export const Controller = ({
         />
         <Divider>Channels</Divider>
         <Grid>
-          {[...Array(nChannels).keys()].map((i) => (
-            <ChannelController
-              key={i}
-              {...sourceData[index]}
-              selections={layerState.layerProps.selections[i]}
-              contrastLimits={layerState.layerProps.contrastLimits[i]}
-              contrastLimitsRange={layerState.layerProps.contrastLimitsRange[i]}
-              channelVisible={layerState.layerProps.channelsVisible[i]}
-              colormap={layerState.layerProps.colormap}
-              colors={layerState.layerProps.colors[i]}
-              toggleChannelVisibility={() => toggleChannelVisibility(index, i)}
-              setChannelContrast={(cl) => setChannelContrast(index, i, cl)}
-            />
-          ))}
+          <ChannelControllers
+            {...sourceData[index]}
+            {...layerState}
+            toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
+            setChannelContrast={(i, contrast) =>
+              setChannelContrast(index, i, contrast)
+            }
+          />
         </Grid>
         {layerState.labels?.length && <Divider>Labels</Divider>}
         {layerState.labels?.map((label, i) => (

@@ -6,7 +6,7 @@ import IconButton from '@mui/material/IconButton';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
 
-export const ChannelController = ({
+const ChannelController = ({
   channel_axis,
   names,
   selections,
@@ -67,6 +67,35 @@ export const ChannelController = ({
           />
         </Grid>
       </Grid>
+    </>
+  );
+};
+
+export const ChannelControllers = ({
+  channel_axis,
+  names,
+  layerProps,
+  toggleChannelVisibility,
+  setChannelContrast,
+}) => {
+  const nChannels = layerProps.selections.length;
+  return (
+    <>
+      {[...Array(nChannels).keys()].map((i) => (
+        <ChannelController
+          key={i}
+          channel_axis={channel_axis}
+          names={names}
+          selections={layerProps.selections[i]}
+          contrastLimits={layerProps.contrastLimits[i]}
+          contrastLimitsRange={layerProps.contrastLimitsRange[i]}
+          channelVisible={layerProps.channelsVisible[i]}
+          colors={layerProps.colors[i]}
+          colormap={layerProps.colormap}
+          toggleChannelVisibility={() => toggleChannelVisibility(i)}
+          setChannelContrast={(cl) => setChannelContrast(i, cl)}
+        />
+      ))}
     </>
   );
 };
