@@ -1,9 +1,6 @@
 import React from 'react';
-
 import './App.css';
-import { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
-
-import { Viewer } from './components/Viewer.jsx';
+import { Viewer, parseMatrix } from '@biongff/viewer';
 
 function App() {
   const url = new URL(window.location.href);
