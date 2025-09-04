@@ -1,6 +1,6 @@
-import { open, NodeNotFoundError } from 'zarrita';
 import * as utils from '@hms-dbmi/vizarr/src/utils';
 import { ZarrPixelSource } from '@hms-dbmi/vizarr/src/ZarrPixelSource';
+import { open, NodeNotFoundError } from 'zarrita';
 
 export async function getZarrJson(location, path = '') {
   const jsonUrl = `${location.replace(/\/?$/, '/')}${path ? path.replace(/\/?$/, '/') : ''}zarr.json`;
@@ -120,10 +120,10 @@ export function transformBox(bbox, modelMatrix) {
 }
 
 // From vizarr utils
-// Workaround for verson 0.5
+// Workaround for version 0.5
 export async function resolveOmeLabelsFromMultiscales(grp) {
-  return open(grp.resolve("labels"), { kind: "group" })
-    .then(({ attrs }) => (utils.resolveAttrs(attrs).labels ?? [])) // use resolveAttrs to use ome if present
+  return open(grp.resolve('labels'), { kind: 'group' })
+    .then(({ attrs }) => utils.resolveAttrs(attrs).labels ?? []) // use resolveAttrs to use ome if present
     .catch((e) => {
       utils.rethrowUnless(e, NodeNotFoundError);
       return [];
@@ -131,20 +131,60 @@ export async function resolveOmeLabelsFromMultiscales(grp) {
 }
 
 export async function loadOmeImageLabel(root, name) {
-  const grp = await open(root.resolve(name), { kind: "group" });
+  const grp = await open(root.resolve(name), { kind: 'group' });
   const attrs = utils.resolveAttrs(grp.attrs);
   utils.assert(utils.isOmeImageLabel(attrs), "No 'image-label' metadata.");
   const data = await utils.loadMultiscales(grp, attrs.multiscales);
   const baseResolution = data.at(0);
-  utils.assert(baseResolution, "No base resolution found for multiscale labels.");
+  utils.assert(
+    baseResolution,
+    'No base resolution found for multiscale labels.',
+  );
   const tileSize = utils.guessTileSize(baseResolution);
   const axes = utils.getNgffAxes(attrs.multiscales);
   const labels = utils.getNgffAxisLabels(axes);
-  const colors = (attrs["image-label"].colors ?? []).map((d) => ({ labelValue: d["label-value"], rgba: d.rgba }));
+  const colors = (attrs['image-label'].colors ?? []).map((d) => ({
+    labelValue: d['label-value'],
+    rgba: d.rgba,
+  }));
   return {
     name,
     modelMatrix: utils.coordinateTransformationsToMatrix(attrs.multiscales),
     loader: data.map((arr) => new ZarrPixelSource(arr, { labels, tileSize })),
     colors: colors.length > 0 ? colors : undefined,
   };
+}
+
+export function getNgffAxes(multiscales) {
+  // Returns axes in the latest v0.4+ format.
+  // defaults for v0.1 & v0.2
+  const default_axes = [
+    { type: 'time', name: 't' },
+    { type: 'channel', name: 'c' },
+    { type: 'space', name: 'z' },
+    { type: 'space', name: 'y' },
+    { type: 'space', name: 'x' },
+  ];
+  function getDefaultType(name) {
+    if (name === 't') return 'time';
+    if (name === 'c') return 'channel';
+    return 'space';
+  }
+  let axes = default_axes;
+  // v0.3 & v0.4+
+  if (multiscales[0].axes) {
+    axes = multiscales[0].axes.map((axis) => {
+      // axis may be string 'x' (v0.3) or object
+      if (typeof axis === 'string') {
+        return { name: axis, type: getDefaultType(axis) };
+      }
+      const { name, type, unit } = axis; // add unit
+      return {
+        name,
+        type: type ?? getDefaultType(name),
+        unit,
+      };
+    });
+  }
+  return axes;
 }
