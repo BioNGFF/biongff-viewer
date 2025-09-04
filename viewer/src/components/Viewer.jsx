@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 
-import { ImageLayer, MultiscaleImageLayer } from '@hms-dbmi/viv';
+import { ImageLayer, MultiscaleImageLayer, ScaleBarLayer } from '@hms-dbmi/viv';
 import { initLayerStateFromSource } from '@hms-dbmi/vizarr/src/io';
 import { GridLayer } from '@hms-dbmi/vizarr/src/layers/grid-layer';
 import {
@@ -141,16 +141,35 @@ export const Viewer = ({
       .flat();
   }, [isLabel, layerStates]);
 
+  const deckLayers = useMemo(() => {
+    if (sourceData.length > 1 || !layers.length || !viewState) {
+      return layers;
+    }
+    if (layers[0].props.loader?.[0]?.meta?.physicalSizes?.x) {
+      const { size, unit } = layers[0].props.loader[0].meta.physicalSizes.x;
+      const scalebar = new ScaleBarLayer({
+        id: 'scalebar',
+        size: size / layers[0].props.modelMatrix[0],
+        unit: unit,
+        viewState: viewState,
+      });
+      return [...layers, scalebar];
+    }
+    return layers;
+  }, [layers, sourceData.length, viewState]);
+
   const resetViewState = useCallback(() => {
     const { deck } = deckRef.current;
-    setViewState(
-      fitImageToViewport({
+    setViewState({
+      ...fitImageToViewport({
         image: getLayerSize(layers?.[0]),
         viewport: deck,
         padding: deck.width < 400 ? 10 : deck.width < 600 ? 30 : 50,
         matrix: layers?.[0]?.props.modelMatrix,
       }),
-    );
+      width: deck.width,
+      height: deck.height,
+    });
   }, [layers]);
 
   useEffect(() => {
@@ -286,7 +305,7 @@ export const Viewer = ({
       />
       <DeckGL
         ref={deckRef}
-        layers={layers}
+        layers={deckLayers}
         viewState={viewState && { ortho: viewState }}
         onViewStateChange={(e) => setViewState(e.viewState)}
         views={[
