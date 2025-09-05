@@ -10,9 +10,9 @@ export default defineConfig({
     // outDir: path.resolve(__dirname, '../dist'),
     lib: {
       entry: path.resolve(__dirname, 'src/index.js'),
-      name: 'BiongffViewer',
+      name: 'BiongffAnndataZarr',
       formats: ['es', 'cjs'],
-      fileName: (format) => `biongff-viewer.${format}.js`,
+      fileName: (format) => `biongff-anndata-zarr.${format}.js`,
     },
     rollupOptions: {
       external: ['react', 'react-dom'],

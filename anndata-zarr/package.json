@@ -1,0 +1,38 @@
+{
+  "name": "@biongff/anndata-zarr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/biongff-anndata-zarr.cjs.js",
+  "module": "dist/biongff-anndata-zarr.es.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/biongff-anndata-zarr.es.js",
+      "require": "./dist/biongff-anndata-zarr.cjs.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.85.3",
+    "lodash": "^4.17.21",
+    "zarrita": "0.5.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^6.2.3",
+    "vitest": "^3.0.8"
+  }
+}

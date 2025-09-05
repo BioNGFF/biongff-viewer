@@ -1,15 +1,18 @@
 {
-  "name": "@biongff/biongff-viewer",
+  "name": "biongff-monorepo",
   "private": true,
   "version": "0.1.0",
   "author": "BioNGFF",
   "license": "MIT",
   "description": "A javascipt viewer for BioNGFF.",
   "scripts": {
-    "dev": "pnpm --filter viewer dev",
+    "dev": "pnpm --filter app dev",
     "lint": "pnpm --filter viewer lint",
     "lint:fix": "pnpm --filter viewer lint:fix",
-    "build": "pnpm --filter viewer build --base ./ --outDir ../dist"
+    "build:viewer": "pnpm --filter viewer build",
+    "build:app": "pnpm --filter app build",
+    "build:anndata-zarr": "pnpm --filter anndata-zarr build",
+    "build": "pnpm build:viewer && pnpm build:anndata-zarr && pnpm build:app"
   },
   "browserslist": {
     "production": [
