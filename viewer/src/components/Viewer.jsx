@@ -30,9 +30,9 @@ const LayerStateMap = {
 
 export const Viewer = ({
   sources,
-  channelAxis = [],
-  isLabel = [],
-  modelMatrices = [],
+  channelAxis = null,
+  isLabel = null,
+  modelMatrices = null,
 }) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
@@ -54,11 +54,13 @@ export const Viewer = ({
 
   useEffect(() => {
     if (!isLoading) {
-      sourceErrors.forEach((error, index) => {
-        if (error) {
-          console.warn(`Error fetching source ${index}`, error);
-        }
-      });
+      if (Array.isArray(sourceErrors)) {
+        sourceErrors.forEach((error, index) => {
+          if (error) {
+            console.warn(`Error fetching source ${index}`, error);
+          }
+        });
+      }
       const ls = sourceData.map((d, index) => {
         if (!d) return null;
         return initLayerStateFromSource({
@@ -279,6 +281,12 @@ export const Viewer = ({
     return (
       <div>
         <LinearProgress thickness={1} />
+      </div>
+    );
+  } else if (!Array.isArray(sourceErrors) && sourceErrors) {
+    return (
+      <div className="alert alert-danger" role="alert">
+        {sourceErrors.message}
       </div>
     );
   }

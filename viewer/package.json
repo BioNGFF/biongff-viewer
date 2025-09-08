@@ -1,8 +1,19 @@
 {
-  "name": "viewer",
+  "name": "@biongff/viewer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/biongff-viewer.cjs.js",
+  "module": "dist/biongff-viewer.es.js",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/biongff-viewer.es.js",
+      "require": "./dist/biongff-viewer.cjs.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -20,9 +31,11 @@
     "@mui/material": "^7.2.0",
     "deck.gl": "~9.0.0",
     "math.gl": "^4.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "zarrita": "0.5.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",

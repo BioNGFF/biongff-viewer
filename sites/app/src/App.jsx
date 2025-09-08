@@ -1,11 +1,10 @@
 import React from 'react';
 
-import { parseMatrix } from '@hms-dbmi/vizarr/src/utils';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-import { Viewer } from './components/Viewer.jsx';
 import './App.css';
+import { Viewer, parseMatrix } from '@biongff/viewer';
 
 const darkTheme = createTheme({
   palette: {
