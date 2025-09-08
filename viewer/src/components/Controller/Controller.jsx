@@ -11,7 +11,7 @@ import Stack from '@mui/material/Stack';
 
 import { AxisSliders } from './AxisSliders';
 import { ChannelControllers } from './ChannelControllers';
-import { OpactiySlider } from './OpacitySlider';
+import { OpacitySlider } from './OpacitySlider';
 
 export const Controller = ({
   sourceData,
@@ -48,7 +48,7 @@ export const Controller = ({
           selections={layerState.layerProps.selections}
           onChange={(selections) => setLayerSelections(index, selections)}
         />
-        <OpactiySlider
+        <OpacitySlider
           value={layerState.layerProps.opacity}
           onChange={(e, value) => setLayerOpacity(index, null, value)}
         />
@@ -80,7 +80,7 @@ export const Controller = ({
                 />
               }
             />
-            <OpactiySlider
+            <OpacitySlider
               value={label.layerProps.opacity}
               onChange={(e, value) =>
                 setLayerOpacity(index, label.layerProps.id, value)

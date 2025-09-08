@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
 
-export const OpactiySlider = ({ value, onChange }) => (
+export const OpacitySlider = ({ value, onChange }) => (
   <Grid container>
     <Typography>Opacity</Typography>
     <Slider

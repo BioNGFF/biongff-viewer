@@ -21,11 +21,12 @@ jobs:
       - name: Install and Build 🔧
         run: |
           pnpm install
-          pnpm run build
-          touch dist/.nojekyll
+          pnpm --filter viewer run build
+          pnpm --filter app run build --base /biongff-viewer/
+          touch sites/app/dist/.nojekyll
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.7.2
         with:
           TOKEN: ${{ secrets.GH_PAT }}
           BRANCH: gh-pages
-          FOLDER: dist
+          FOLDER: sites/app/dist
