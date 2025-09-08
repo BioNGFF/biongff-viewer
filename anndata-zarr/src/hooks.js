@@ -1,10 +1,15 @@
 import { useCallback } from 'react';
 
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
 import { COLORSCALES } from './constants/colorscales';
-import { fetchDataFromZarr, getZarrPath, getColors } from './utils';
+import {
+  fetchDataFromZarr,
+  getZarrPath,
+  getColors,
+  getVarNames,
+} from './utils';
 
 const getAnndataColors = async (url, matrixProps, colorProps) => {
   let zarrData;
@@ -21,9 +26,9 @@ const getAnndataColors = async (url, matrixProps, colorProps) => {
 
   const max = categories
     ? categories.length - 1
-    : colorProps.max || _.max(zarrData.data);
-  const min = categories ? 0 : colorProps.min || _.min(zarrData.data);
-  const colorscale = categories ? COLORSCALES.Accent : colorProps.colorscale;
+    : colorProps?.max || _.max(zarrData.data);
+  const min = categories ? 0 : colorProps?.min || _.min(zarrData.data);
+  const colorscale = categories ? COLORSCALES.Accent : colorProps?.colorscale;
 
   return {
     colors: getColors({
@@ -55,6 +60,19 @@ export const useAnndataColors = (adatas = []) => {
       queryFn: () => getAnndataColors(url, matrixProps, colorProps),
     })),
     combine,
+  });
+
+  return { data, isLoading, serverError };
+};
+
+export const useAnndataFeatures = (adata = { url: null, namesCol: null }) => {
+  const {
+    data = null,
+    isLoading = false,
+    serverError = null,
+  } = useQuery({
+    queryKey: ['anndataFeatures', adata.url, adata.namesCol],
+    queryFn: () => getVarNames(adata.url, adata.namesCol),
   });
 
   return { data, isLoading, serverError };

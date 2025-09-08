@@ -33,6 +33,20 @@ export const fetchDataFromZarr = async (url, path, s) => {
   }
 };
 
+export const getVarNames = async (url, namesCol = '_index') => {
+  try {
+    const store = new FetchStore(url);
+    const node = await open(store, { kind: 'group' });
+
+    const arr = await open(node.resolve(`var/${namesCol}`, { kind: 'array' }));
+    const varNames = (await get(arr)).data;
+    return varNames;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
 export const getVarIndex = async (url, varId, namesCol = '_index') => {
   try {
     const store = new FetchStore(url);
@@ -50,7 +64,7 @@ export const getVarIndex = async (url, varId, namesCol = '_index') => {
 export const getZarrPath = async (url, matrixProps) => {
   const { feature, obs } = matrixProps;
   if (feature) {
-    if (feature.index) {
+    if (feature.index !== undefined && feature.index !== null) {
       return { url, path: 'X', s: [null, feature.index] };
     } else if (feature.name) {
       return {
