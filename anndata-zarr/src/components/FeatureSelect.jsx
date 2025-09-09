@@ -78,17 +78,20 @@ export const FeatureSelect = ({
   );
 };
 
-export const useFeatureSelect = (adata) => {
+export const useFeatureSelect = ({ adata, onSelect = () => {} }) => {
   const [feature, setFeature] = useState(null);
 
-  const { data, isLoading, serverError } = useAnndataColors([
-    {
-      url: adata.url,
-      matrixProps: {
-        feature: feature,
+  const { data, isLoading, serverError } = useAnndataColors(
+    [
+      {
+        url: adata.url,
+        matrixProps: {
+          feature: feature,
+        },
       },
-    },
-  ]);
+    ],
+    { enabled: !!feature },
+  );
 
   const featureSelect = (
     <FeatureSelect
@@ -97,6 +100,7 @@ export const useFeatureSelect = (adata) => {
         setFeature({
           index,
         });
+        onSelect();
       }}
       selectedIndex={feature?.index}
     />

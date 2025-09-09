@@ -47,6 +47,35 @@ export const getVarNames = async (url, namesCol = '_index') => {
   }
 };
 
+export const getObs = async (url) => {
+  try {
+    const store = new FetchStore(url);
+    const node = await open(store, { kind: 'group' });
+
+    const cols = (await open(node.resolve('obs', { kind: 'group' }))).attrs?.[
+      'column-order'
+    ];
+    const obs = { categorical: [], numerical: [] };
+    for (const col of cols) {
+      const dataNode = await open(node.resolve(`obs/${col}`));
+      const { 'encoding-type': encodingType } = dataNode.attrs || {};
+      if (encodingType === 'categorical') {
+        const categoriesArr = await open(dataNode.resolve('categories'), {
+          kind: 'array',
+        });
+        const { data: categories } = await get(categoriesArr);
+        obs.categorical.push({ name: col, categories });
+      } else if (encodingType === 'array') {
+        obs.numerical.push({ name: col });
+      }
+    }
+    return obs;
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+};
+
 export const getVarIndex = async (url, varId, namesCol = '_index') => {
   try {
     const store = new FetchStore(url);

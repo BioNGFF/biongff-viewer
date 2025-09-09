@@ -9,6 +9,7 @@ import {
   getZarrPath,
   getColors,
   getVarNames,
+  getObs,
 } from './utils';
 
 const getAnndataColors = async (url, matrixProps, colorProps) => {
@@ -41,7 +42,7 @@ const getAnndataColors = async (url, matrixProps, colorProps) => {
   };
 };
 
-export const useAnndataColors = (adatas = []) => {
+export const useAnndataColors = (adatas = [], opts = {}) => {
   const combine = useCallback((results) => {
     return {
       data: results.map((result) => result.data),
@@ -59,6 +60,7 @@ export const useAnndataColors = (adatas = []) => {
       queryKey: ['anndataColor', url, matrixProps, colorProps],
       queryFn: () => getAnndataColors(url, matrixProps, colorProps),
     })),
+    ...opts,
     combine,
   });
 
@@ -73,6 +75,19 @@ export const useAnndataFeatures = (adata = { url: null, namesCol: null }) => {
   } = useQuery({
     queryKey: ['anndataFeatures', adata.url, adata.namesCol],
     queryFn: () => getVarNames(adata.url, adata.namesCol),
+  });
+
+  return { data, isLoading, serverError };
+};
+
+export const useAnndataObs = (adata = { url: null }) => {
+  const {
+    data = null,
+    isLoading = false,
+    serverError = null,
+  } = useQuery({
+    queryKey: ['anndataObs', adata.url],
+    queryFn: () => getObs(adata.url),
   });
 
   return { data, isLoading, serverError };
