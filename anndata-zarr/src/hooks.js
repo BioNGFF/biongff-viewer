@@ -1,8 +1,10 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useQueries, useQuery } from '@tanstack/react-query';
 import _ from 'lodash';
 
+import { useFeatureSelect } from './components/FeatureSelect';
+import { useObsSelect } from './components/ObsSelect';
 import { COLORSCALES } from './constants/colorscales';
 import {
   fetchDataFromZarr,
@@ -106,4 +108,39 @@ export const useAnndataObs = (adata = { url: null }) => {
   });
 
   return { data, isLoading, serverError };
+};
+
+export const useAnndata = (adata = { url: null }) => {
+  const [colorEncoding, setColorEncoding] = useState(null);
+  const [colors, setColors] = useState(null);
+
+  const { featureData, featureSelect } = useFeatureSelect({
+    adata,
+    onSelect: () => setColorEncoding('feature'),
+  });
+  const { obsData, obsSelect } = useObsSelect({
+    adata,
+    onSelect: () => setColorEncoding('obs'),
+  });
+
+  const colorData = useMemo(() => {
+    if (colorEncoding === 'feature') {
+      return featureData;
+    } else if (colorEncoding === 'obs') {
+      return obsData;
+    }
+    return null;
+  }, [colorEncoding, featureData, obsData]);
+
+  useEffect(() => {
+    if (colorData?.serverError) {
+      setColors(null);
+      return;
+    }
+    if (!colorData?.isLoading && colorData?.data) {
+      setColors(colorData.data.colors);
+    }
+  }, [colorData?.data, colorData?.isLoading, colorData?.serverError]);
+
+  return { colors, featureSelect, obsSelect };
 };
