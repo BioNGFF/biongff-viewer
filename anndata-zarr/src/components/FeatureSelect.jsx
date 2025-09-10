@@ -82,14 +82,12 @@ export const useFeatureSelect = ({ adata, onSelect = () => {} }) => {
   const [feature, setFeature] = useState(null);
 
   const { data, isLoading, serverError } = useAnndataColors(
-    [
-      {
-        url: adata.url,
-        matrixProps: {
-          feature: feature,
-        },
+    {
+      url: adata.url,
+      matrixProps: {
+        feature: feature,
       },
-    ],
+    },
     { enabled: !!feature },
   );
 

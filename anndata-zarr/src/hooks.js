@@ -42,7 +42,22 @@ const getAnndataColors = async (url, matrixProps, colorProps) => {
   };
 };
 
-export const useAnndataColors = (adatas = [], opts = {}) => {
+export const useAnndataColors = (adata = { url: null }, opts = {}) => {
+  const {
+    data = null,
+    isLoading = false,
+    serverError = null,
+  } = useQuery({
+    queryKey: ['anndataColor', adata.url, adata.matrixProps, adata.colorProps],
+    queryFn: () =>
+      getAnndataColors(adata.url, adata.matrixProps, adata.colorProps),
+    ...opts,
+  });
+
+  return { data, isLoading, serverError };
+};
+
+export const useAnndatasColors = (adatas = [], opts = {}) => {
   const combine = useCallback((results) => {
     return {
       data: results.map((result) => result.data),

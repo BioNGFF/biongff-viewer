@@ -135,14 +135,12 @@ export const useObsSelect = ({ adata, onSelect = () => {} }) => {
   const [obsCol, setObsCol] = useState(null);
 
   const { data, isLoading, serverError } = useAnndataColors(
-    [
-      {
-        url: adata.url,
-        matrixProps: {
-          obs: { col: obsCol },
-        },
+    {
+      url: adata.url,
+      matrixProps: {
+        obs: { col: obsCol },
       },
-    ],
+    },
     { enabled: !!obsCol },
   );
 
