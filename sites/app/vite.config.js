@@ -13,6 +13,10 @@ export default defineConfig(({ mode }) => ({
               __dirname,
               '../../viewer/src/index.js',
             ),
+            '@biongff/anndata-zarr': path.resolve(
+              __dirname,
+              '../../anndata-zarr/src/index.js',
+            ),
           }
         : {}),
     },
