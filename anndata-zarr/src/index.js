@@ -1,5 +1,6 @@
-export { useAnndataColors, useAnndata } from './hooks';
+export { useAnndataColors } from './hooks';
 export { AnndataProvider } from './provider';
 export { COLORSCALES } from './constants/colorscales';
-export { useFeatureSelect } from './components/FeatureSelect';
-export { useObsSelect } from './components/ObsSelect';
+export { FeatureSelect } from './components/FeatureSelect';
+export { ObsSelect } from './components/ObsSelect';
+export { AnndataController } from './components/AnndataController';

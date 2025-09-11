@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -19,6 +19,7 @@ import { COLORSCALES } from '../constants/colorscales';
 import { useAnndataColors, useAnndataObs } from '../hooks';
 import { getColor } from '../utils';
 
+// @TODO: fix styling (width)
 const CategoricalCol = ({ col, showColor = false }) => {
   const [open, setOpen] = useState(false);
   const { categories } = col;
@@ -27,27 +28,23 @@ const CategoricalCol = ({ col, showColor = false }) => {
     <Box>
       <Box
         onClick={() => setOpen(!open)}
-        sx={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+        sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <FormControlLabel
-            control={
-              <Radio size="small" onClick={(e) => e.stopPropagation()} />
-            }
-            label={col.name}
-            key={col.name}
-            value={col.name}
-          />
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </Box>
+        <FormControlLabel
+          control={<Radio size="small" onClick={(e) => e.stopPropagation()} />}
+          label={col.name}
+          key={col.name}
+          value={col.name}
+        />
+        {open ? <ExpandLess /> : <ExpandMore />}
       </Box>
       <Collapse in={open} timeout="auto" unmountOnExit>
+        {categories.length > 100 && (
+          <Alert severity="warning" variant="outlined">
+            Truncated to 100 categories
+          </Alert>
+        )}
         <List>
-          {categories.length > 100 && (
-            <Alert severity="warning" variant="outlined">
-              Truncated to 100 categories
-            </Alert>
-          )}
           {categories.slice(0, 100).map((cat, i) => (
             <ListItem key={cat} sx={{ pl: 4 }} disablePadding>
               {showColor && (
@@ -81,12 +78,35 @@ const NumericalCol = ({ col }) => {
   );
 };
 
-export const ObsSelect = ({
-  adata,
-  onSelect = () => {},
-  selectedCol = null,
-}) => {
+export const ObsSelect = ({ adata, callback = () => {} }) => {
+  const [obsCol, setObsCol] = useState(null);
+
   const { data, isLoading, serverError } = useAnndataObs(adata);
+  const colorData = useAnndataColors(
+    {
+      ...adata,
+      matrixProps: {
+        obs: { col: obsCol },
+      },
+    },
+    {
+      enabled: !!obsCol,
+    },
+  );
+
+  const onSelect = (col) => {
+    setObsCol(col);
+  };
+
+  useEffect(() => {
+    if (colorData?.serverError) {
+      callback(null);
+      return;
+    }
+    if (!colorData?.isLoading && colorData?.data) {
+      callback(colorData.data.colors);
+    }
+  }, [colorData, callback]);
 
   if (isLoading) {
     return <></>;
@@ -97,28 +117,23 @@ export const ObsSelect = ({
   return (
     <Box
       sx={{
-        position: 'absolute',
-        right: '1rem',
-        bottom: '1rem',
         width: 250,
-        height: '50%',
+        maxHeight: '100%',
+        minHeight: 250,
         zIndex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
       }}
     >
       Observations
-      <FormControl>
-        <RadioGroup
-          value={selectedCol}
-          onChange={(e) => onSelect(e.target.value)}
-        >
+      <FormControl sx={{ width: '100%' }}>
+        <RadioGroup value={obsCol} onChange={(e) => onSelect(e.target.value)}>
           <Divider>Categorical</Divider>
           {data.categorical.map((col) => (
             <CategoricalCol
               key={col.name}
               col={col}
-              showColor={selectedCol === col.name}
+              showColor={obsCol === col.name}
             />
           ))}
           <Divider>Numerical</Divider>
@@ -129,31 +144,4 @@ export const ObsSelect = ({
       </FormControl>
     </Box>
   );
-};
-
-export const useObsSelect = ({ adata, onSelect = () => {} }) => {
-  const [obsCol, setObsCol] = useState(null);
-
-  const { data, isLoading, serverError } = useAnndataColors(
-    {
-      url: adata.url,
-      matrixProps: {
-        obs: { col: obsCol },
-      },
-    },
-    { enabled: !!obsCol },
-  );
-
-  const obsSelect = (
-    <ObsSelect
-      adata={adata}
-      onSelect={(col) => {
-        setObsCol(col);
-        onSelect(col);
-      }}
-      selectedCol={obsCol}
-    />
-  );
-
-  return { obsData: { data, isLoading, serverError }, obsSelect };
 };
