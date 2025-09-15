@@ -84,7 +84,7 @@ export const FeatureSelect = ({
     <Box
       sx={{
         width: 250,
-        maxHeight: '100%',
+        height: '100%',
         minHeight: 250,
         zIndex: 1,
       }}

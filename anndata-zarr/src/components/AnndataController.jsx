@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 
 import { FeatureSelect } from './FeatureSelect';
@@ -20,19 +21,23 @@ export const AnndataController = ({ adata, callback = () => {} }) => {
   };
 
   return (
-    <Stack sx={{ height: '100%' }} spacing={2}>
-      <FeatureSelect
-        adata={adata}
-        callback={callback}
-        feature={feature}
-        onSelect={handleFeatureSelect}
-      />
-      <ObsSelect
-        adata={adata}
-        callback={callback}
-        obsCol={obsCol}
-        onSelect={handleObsSelect}
-      />
+    <Stack sx={{ height: '100%' }}>
+      <Box sx={{ height: '50%' }}>
+        <FeatureSelect
+          adata={adata}
+          callback={callback}
+          feature={feature}
+          onSelect={handleFeatureSelect}
+        />
+      </Box>
+      <Box sx={{ height: '50%' }}>
+        <ObsSelect
+          adata={adata}
+          callback={callback}
+          obsCol={obsCol}
+          onSelect={handleObsSelect}
+        />
+      </Box>
     </Stack>
   );
 };

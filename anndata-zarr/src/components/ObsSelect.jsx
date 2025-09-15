@@ -125,14 +125,14 @@ export const ObsSelect = ({ adata, obsCol, onSelect, callback = () => {} }) => {
     <Box
       sx={{
         width: 250,
-        maxHeight: '100%',
+        height: '100%',
         minHeight: 250,
         zIndex: 1,
       }}
     >
-      <Stack sx={{ height: '100%' }} spacing={1}>
+      <Stack sx={{ height: '100%' }}>
+        Observations
         <Box sx={{ overflowY: 'auto', overflowX: 'hidden' }}>
-          Observations
           <FormControl sx={{ width: '100%' }}>
             <RadioGroup
               value={obsCol}
