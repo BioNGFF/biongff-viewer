@@ -33,8 +33,11 @@ const getAnndataColors = async (url, matrixProps, colorProps) => {
 
   return {
     colors: getColors({
-      data: _.map(zarrData.data, (v) => (v - min) / (max - min)),
+      data: zarrData.data,
+      max,
+      min,
       colorProps: { ...colorProps, colorscale },
+      categories,
     }),
     max,
     min,

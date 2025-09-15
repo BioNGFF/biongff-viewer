@@ -163,12 +163,15 @@ export const Viewer = ({
     }
   }, [layers, resetViewState, viewState]);
 
-  const getTooltip = ({ layer, index, value }) => {
+  const getTooltip = ({ layer, index, label, value }) => {
     if (!layer || !index) {
       return null;
     }
     return {
-      text: value,
+      text:
+        value !== null && value !== undefined
+          ? `${label}: ${value}`
+          : `${label}`,
     };
   };
 

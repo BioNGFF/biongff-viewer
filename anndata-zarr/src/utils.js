@@ -152,10 +152,10 @@ export const getColor = ({ value, colorscale = COLORSCALES.Viridis }) => {
   return [...computeColor(colorscale, value), 255];
 };
 
-export const getColors = ({ data, colorProps }) => {
+export const getColors = ({ data, max, min, colorProps, categories }) => {
   return _.map(data, (v, i) => ({
     labelValue: i + 1,
-    rgba: getColor({ value: v, ...colorProps }),
-    value: v,
+    rgba: getColor({ value: (v - min) / (max - min), ...colorProps }),
+    value: categories ? categories[v] : v,
   }));
 };
