@@ -42,6 +42,7 @@ const getAnndataColors = async (url, matrixProps, colorProps) => {
     max,
     min,
     ...(categories ? { categories } : {}),
+    colorscale,
   };
 };
 

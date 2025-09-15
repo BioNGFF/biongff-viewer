@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -14,10 +14,12 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import Stack from '@mui/material/Stack';
 
 import { COLORSCALES } from '../constants/colorscales';
 import { useAnndataColors, useAnndataObs } from '../hooks';
 import { getColor } from '../utils';
+import { Legend } from './Legend';
 
 // @TODO: fix styling (width)
 const CategoricalCol = ({ col, showColor = false }) => {
@@ -78,9 +80,7 @@ const NumericalCol = ({ col }) => {
   );
 };
 
-export const ObsSelect = ({ adata, callback = () => {} }) => {
-  const [obsCol, setObsCol] = useState(null);
-
+export const ObsSelect = ({ adata, obsCol, onSelect, callback = () => {} }) => {
   const { data, isLoading, serverError } = useAnndataObs(adata);
   const colorData = useAnndataColors(
     {
@@ -94,10 +94,6 @@ export const ObsSelect = ({ adata, callback = () => {} }) => {
     },
   );
 
-  const onSelect = (col) => {
-    setObsCol(col);
-  };
-
   useEffect(() => {
     if (colorData?.serverError) {
       callback(null);
@@ -107,6 +103,17 @@ export const ObsSelect = ({ adata, callback = () => {} }) => {
       callback(colorData.data.colors);
     }
   }, [colorData, callback]);
+
+  const legend = useMemo(() => {
+    if (colorData?.serverError || colorData?.isLoading || !colorData?.data) {
+      return null;
+    }
+    const { min, max, colorscale, categories } = colorData.data;
+    if (categories) {
+      return null;
+    }
+    return <Legend min={min} max={max} colorscale={colorscale} />;
+  }, [colorData.data, colorData?.isLoading, colorData?.serverError]);
 
   if (isLoading) {
     return <></>;
@@ -121,27 +128,33 @@ export const ObsSelect = ({ adata, callback = () => {} }) => {
         maxHeight: '100%',
         minHeight: 250,
         zIndex: 1,
-        overflowY: 'auto',
-        overflowX: 'hidden',
       }}
     >
-      Observations
-      <FormControl sx={{ width: '100%' }}>
-        <RadioGroup value={obsCol} onChange={(e) => onSelect(e.target.value)}>
-          <Divider>Categorical</Divider>
-          {data.categorical.map((col) => (
-            <CategoricalCol
-              key={col.name}
-              col={col}
-              showColor={obsCol === col.name}
-            />
-          ))}
-          <Divider>Numerical</Divider>
-          {data.numerical.map((col) => (
-            <NumericalCol key={col.name} col={col} />
-          ))}
-        </RadioGroup>
-      </FormControl>
+      <Stack sx={{ height: '100%' }} spacing={1}>
+        <Box sx={{ overflowY: 'auto', overflowX: 'hidden' }}>
+          Observations
+          <FormControl sx={{ width: '100%' }}>
+            <RadioGroup
+              value={obsCol}
+              onChange={(e) => onSelect(e.target.value)}
+            >
+              <Divider>Categorical</Divider>
+              {data.categorical.map((col) => (
+                <CategoricalCol
+                  key={col.name}
+                  col={col}
+                  showColor={obsCol === col.name}
+                />
+              ))}
+              <Divider>Numerical</Divider>
+              {data.numerical.map((col) => (
+                <NumericalCol key={col.name} col={col} />
+              ))}
+            </RadioGroup>
+          </FormControl>
+        </Box>
+        {!!obsCol && legend}
+      </Stack>
     </Box>
   );
 };

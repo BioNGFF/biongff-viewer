@@ -9,13 +9,14 @@ import TextField from '@mui/material/TextField';
 import { List } from 'react-window';
 
 import { useAnndataColors, useAnndataFeatures } from '../hooks';
+import { Legend } from './Legend';
 
 const RowComponent = ({ index, items, style, onSelect, selectedIndex }) => {
   return (
     <ListItem style={style} key={index} component="div" disablePadding>
       <ListItemButton
         style={{ height: '100%' }}
-        onClick={() => onSelect(items[index].matrixIndex)}
+        onClick={() => onSelect({ index: items[index].matrixIndex })}
         selected={items[index].matrixIndex === selectedIndex}
       >
         <ListItemText primary={items[index].name} />
@@ -24,8 +25,12 @@ const RowComponent = ({ index, items, style, onSelect, selectedIndex }) => {
   );
 };
 
-export const FeatureSelect = ({ adata, callback = () => {} }) => {
-  const [feature, setFeature] = useState(null);
+export const FeatureSelect = ({
+  adata,
+  feature,
+  onSelect,
+  callback = () => {},
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data, isLoading, serverError } = useAnndataFeatures(adata);
@@ -38,10 +43,6 @@ export const FeatureSelect = ({ adata, callback = () => {} }) => {
     },
     { enabled: !!feature },
   );
-
-  const onSelect = (index) => {
-    setFeature({ index });
-  };
 
   useEffect(() => {
     if (colorData?.serverError) {
@@ -64,6 +65,14 @@ export const FeatureSelect = ({ adata, callback = () => {} }) => {
       item.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [data, searchTerm]);
+
+  const legend = useMemo(() => {
+    if (colorData?.serverError || colorData?.isLoading || !colorData?.data) {
+      return null;
+    }
+    const { min, max, colorscale } = colorData.data;
+    return <Legend min={min} max={max} colorscale={colorscale} />;
+  }, [colorData.data, colorData?.isLoading, colorData?.serverError]);
 
   if (isLoading) {
     return <></>;
@@ -93,8 +102,13 @@ export const FeatureSelect = ({ adata, callback = () => {} }) => {
           rowComponent={RowComponent}
           rowCount={items.length}
           rowHeight={25}
-          rowProps={{ items, onSelect, selectedIndex: feature?.index }}
+          rowProps={{
+            items,
+            onSelect,
+            selectedIndex: feature?.index,
+          }}
         />
+        {!!feature && legend}
       </Stack>
     </Box>
   );
