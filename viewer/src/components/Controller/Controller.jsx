@@ -53,16 +53,14 @@ export const Controller = ({
           onChange={(e, value) => setLayerOpacity(index, null, value)}
         />
         <Divider>Channels</Divider>
-        <Grid>
-          <ChannelControllers
-            {...sourceData[index]}
-            {...layerState}
-            toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
-            setChannelContrast={(i, contrast) =>
-              setChannelContrast(index, i, contrast)
-            }
-          />
-        </Grid>
+        <ChannelControllers
+          {...sourceData[index]}
+          {...layerState}
+          toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
+          setChannelContrast={(i, contrast) =>
+            setChannelContrast(index, i, contrast)
+          }
+        />
         {layerState.labels?.length && <Divider>Labels</Divider>}
         {layerState.labels?.map((label, i) => (
           <React.Fragment key={label.layerProps.id}>

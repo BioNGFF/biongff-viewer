@@ -32,7 +32,9 @@ const ChannelController = ({
   return (
     <>
       <Grid container justifyContent="space-between">
-        <Typography>{label}</Typography>
+        <Typography noWrap title={label}>
+          {label}
+        </Typography>
       </Grid>
       <Grid container spacing={2}>
         <Grid display="flex" justifyContent="center" alignItems="center">
@@ -80,7 +82,7 @@ export const ChannelControllers = ({
 }) => {
   const nChannels = layerProps.selections.length;
   return (
-    <>
+    <Grid sx={{ width: '100%' }}>
       {[...Array(nChannels).keys()].map((i) => (
         <ChannelController
           key={i}
@@ -96,6 +98,6 @@ export const ChannelControllers = ({
           setChannelContrast={(cl) => setChannelContrast(i, cl)}
         />
       ))}
-    </>
+    </Grid>
   );
 };
