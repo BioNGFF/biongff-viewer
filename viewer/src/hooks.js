@@ -46,9 +46,9 @@ const fetchSourceData = async (config) => {
         sourceData.labels = await Promise.all(
           labels.map((name) => loadOmeImageLabel(node.resolve('labels'), name)),
         );
-        return sourceData;
+        return [sourceData];
       }
-      return await createSourceData(config);
+      return [await createSourceData(config)];
     }
 
     // load bioformats2raw.layout
@@ -118,15 +118,17 @@ const fetchSourceData = async (config) => {
       }),
     );
 
-    // @TODO: return all series
-    const sIndex = 0;
-
-    const seriesUrl = `${base.replace(/\/?$/, '/')}${series?.[sIndex] || ''}`;
-    return await createSourceData({
-      ...config,
-      source: seriesUrl,
-      ...seriesMd[sIndex],
+    // return all series
+    let promises = series.map((s, sIndex) => {
+      const seriesUrl = `${base.replace(/\/?$/, '/')}${s}`;
+      return createSourceData({
+        ...config,
+        source: seriesUrl,
+        ...seriesMd[sIndex],
+      });
     });
+    return await Promise.all(promises);
+
   } catch (err) {
     throw err;
   }
@@ -148,7 +150,7 @@ export const useSourceData = (configs) => {
 
       results.forEach((res) => {
         if (res.status === 'fulfilled') {
-          data.push(res.value);
+          res.value.forEach((d) => data.push(d));
           errors.push(null);
         } else {
           data.push(null);
