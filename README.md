@@ -1,6 +1,8 @@
-# BioNGFF Viewer
+# 🚧 BioNGFF Viewer 🚧
 
-Monorepo while testing around
+Web viewer for bioimaging data.
+Built to support [NGFF specifications](https://ngff.openmicroscopy.org/latest/).
+Leverages [Vizarr](https://github.com/hms-dbmi/vizarr).
 
 ## Demo
 
