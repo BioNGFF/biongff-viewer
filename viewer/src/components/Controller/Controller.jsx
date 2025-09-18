@@ -3,11 +3,14 @@ import React from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import Checkbox from '@mui/material/Checkbox';
+import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
+import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
 import { AxisSliders } from './AxisSliders';
+import { ChannelControllers } from './ChannelControllers';
 import { OpacitySlider } from './OpacitySlider';
 
 export const Controller = ({
@@ -17,6 +20,8 @@ export const Controller = ({
   toggleVisibility,
   setLayerOpacity,
   setLayerSelections,
+  toggleChannelVisibility,
+  setChannelContrast,
 }) => {
   const controls = layerStates.map((layerState, index) => {
     if (!layerState) {
@@ -47,8 +52,19 @@ export const Controller = ({
           value={layerState.layerProps.opacity}
           onChange={(e, value) => setLayerOpacity(index, null, value)}
         />
-        {layerState.labels?.map((label) => (
+        <Divider>Channels</Divider>
+        <ChannelControllers
+          {...sourceData[index]}
+          {...layerState}
+          toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
+          setChannelContrast={(i, contrast) =>
+            setChannelContrast(index, i, contrast)
+          }
+        />
+        {layerState.labels?.length && <Divider>Labels</Divider>}
+        {layerState.labels?.map((label, i) => (
           <React.Fragment key={label.layerProps.id}>
+            {i > 0 && <Divider />}
             <FormControlLabel
               key={label.layerProps.id}
               label={`${label.layerProps.id} (label)`}
@@ -77,7 +93,6 @@ export const Controller = ({
   return (
     <div className="viewer-controller">
       <Stack spacing={2}>
-        <p>Layers</p>
         <FormGroup>{controls}</FormGroup>
         <button type="button" className="btn" onClick={resetViewState}>
           Reset view

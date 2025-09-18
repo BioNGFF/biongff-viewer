@@ -24,7 +24,7 @@ const AxisSlider = ({ axis_labels, axisIndex, selections, max, onChange }) => {
 
   return (
     <>
-      <Grid container spacing={2} sx={{ justifyContent: 'space-between' }}>
+      <Grid container justifyContent="space-between">
         <Typography>{axisLabel}</Typography>
         <Input
           value={value}
