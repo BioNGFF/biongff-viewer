@@ -123,6 +123,9 @@ importers:
       '@biongff/viewer':
         specifier: workspace:*
         version: link:../../viewer
+      '@mui/material':
+        specifier: ^7.2.0
+        version: 7.3.2(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react@18.3.1))(@types/react@18.3.24)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.2.0
         version: 18.3.1

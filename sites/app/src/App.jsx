@@ -1,8 +1,19 @@
 import React, { useMemo, useState } from 'react';
 
-import './App.css';
 import { AnndataProvider, AnndataController } from '@biongff/anndata-zarr';
 import { Viewer, parseMatrix } from '@biongff/viewer';
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import './App.css';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+  typography: {
+    fontSize: 12,
+  },
+});
 
 function App() {
   return (
@@ -55,14 +66,17 @@ function Page() {
 
   return (
     <>
-      <div className="container-right">{anndataControllers}</div>
-      <Viewer
-        sources={sources}
-        channelAxis={channelAxis}
-        isLabel={isLabel}
-        modelMatrices={modelMatrices}
-        colors={colors}
-      />
+      <ThemeProvider theme={darkTheme}>
+        <CssBaseline />
+        <div className="container-right">{anndataControllers}</div>
+        <Viewer
+          sources={sources}
+          channelAxis={channelAxis}
+          isLabel={isLabel}
+          modelMatrices={modelMatrices}
+          colors={colors}
+        />
+      </ThemeProvider>
     </>
   );
 }
