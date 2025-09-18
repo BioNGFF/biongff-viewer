@@ -19,7 +19,7 @@ import DeckGL, { OrthographicView } from 'deck.gl';
 import { Matrix4 } from 'math.gl';
 
 import { useSourceData } from '../hooks';
-import { Controller } from './Controller';
+import { Controller } from './Controller/Controller';
 import { LabelLayer } from '../layers/label-layer';
 
 const LayerStateMap = {
@@ -234,6 +234,20 @@ export const Viewer = ({
     }
   };
 
+  const setLayerSelections = (index, selections) => {
+    setLayerStates((prev) => {
+      return prev.map((state, i) => {
+        if (i !== index) return state;
+        return {
+          ...state,
+          layerProps: {
+            ...state.layerProps,
+            selections: selections,
+          },
+        };
+      });
+    });
+  };
   const { near, far } = useMemo(() => {
     if (!layers?.length) {
       return { near: 0.1, far: 1000 };
@@ -279,10 +293,12 @@ export const Viewer = ({
   return (
     <div>
       <Controller
+        sourceData={sourceData}
         layerStates={layerStates}
         resetViewState={resetViewState}
         toggleVisibility={toggleVisibility}
         setLayerOpacity={setLayerOpacity}
+        setLayerSelections={setLayerSelections}
       />
       <DeckGL
         ref={deckRef}

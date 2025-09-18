@@ -1,6 +1,16 @@
 import React from 'react';
+
+import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 import './App.css';
 import { Viewer, parseMatrix } from '@biongff/viewer';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+});
 
 function App() {
   const url = new URL(window.location.href);
@@ -15,14 +25,17 @@ function App() {
     .map((v) => parseMatrix(v));
 
   return (
-    <>
-      <Viewer
-        sources={sources}
-        channelAxis={channelAxis}
-        isLabel={isLabel}
-        modelMatrices={modelMatrices}
-      />
-    </>
+    <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
+      <div className="App">
+        <Viewer
+          sources={sources}
+          channelAxis={channelAxis}
+          isLabel={isLabel}
+          modelMatrices={modelMatrices}
+        />
+      </div>
+    </ThemeProvider>
   );
 }
 
