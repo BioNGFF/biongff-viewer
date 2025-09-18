@@ -1,1 +1,0 @@
-import{H as a}from"./index-b64c34b0.js";class c extends a{decodeBlock(l){const o=new DataView(l),r=[];for(let e=0;e<l.byteLength;++e){let t=o.getInt8(e);if(t<0){const n=o.getUint8(e+1);t=-t;for(let s=0;s<=t;++s)r.push(n);e+=1}else{for(let n=0;n<=t;++n)r.push(o.getUint8(e+n+1));e+=t+1}}return new Uint8Array(r).buffer}}export{c as default};
