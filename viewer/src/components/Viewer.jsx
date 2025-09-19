@@ -33,6 +33,7 @@ export const Viewer = ({
   channelAxis = null,
   isLabel = null,
   modelMatrices = null,
+  colors = null,
 }) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
@@ -104,6 +105,8 @@ export const Viewer = ({
                       layerState.layerProps.selections[0],
                     ),
                     pickable: true,
+                    colors:
+                      colors?.[index] || layerState.labels[0].layerProps.colors,
                   })
                 : null,
             ];
@@ -129,6 +132,7 @@ export const Viewer = ({
                             layerState.layerProps.selections[0],
                           ),
                         pickable: true,
+                        colors: colors?.[index] || label.layerProps.colors,
                       })
                     : null;
                 })
@@ -138,7 +142,7 @@ export const Viewer = ({
         return [];
       })
       .flat();
-  }, [isLabel, layerStates]);
+  }, [colors, isLabel, layerStates]);
 
   const deckLayers = useMemo(() => {
     if (sourceData.length > 1 || !layers.length || !viewState) {
@@ -177,12 +181,15 @@ export const Viewer = ({
     }
   }, [layers, resetViewState, viewState]);
 
-  const getTooltip = ({ layer, index, value }) => {
+  const getTooltip = ({ layer, index, label, value }) => {
     if (!layer || !index) {
       return null;
     }
     return {
-      text: value,
+      text:
+        value !== null && value !== undefined
+          ? `${label}: ${value}`
+          : `${label}`,
     };
   };
 

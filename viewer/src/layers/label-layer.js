@@ -60,7 +60,7 @@ class GrayscaleBitmapLayer extends VizarrGrayscaleBitmapLayer {
     if (!info.coordinate) {
       return info;
     }
-    const { pixelData, bounds, modelMatrixInverse } = this.props;
+    const { pixelData, bounds, modelMatrixInverse, valueMap } = this.props;
     const { data, width, height } = pixelData;
     let [x, y] = info.coordinate;
     if (modelMatrixInverse && !Matrix4.IDENTITY.equals(modelMatrixInverse)) {
@@ -85,9 +85,11 @@ class GrayscaleBitmapLayer extends VizarrGrayscaleBitmapLayer {
     if (index < 0 || index >= data.length) {
       return info;
     }
-    const value = data[index];
+    const label = data[index];
+    const value = valueMap ? valueMap.get(label) : null;
     info = {
       ...info,
+      label: label,
       value: value,
     };
     return info;
@@ -142,27 +144,27 @@ void main() {
   }
 
   updateState({ props, oldProps, changeFlags, ...rest }) {
-      super.updateState({ props, oldProps, changeFlags, ...rest });
-      if (props.pixelData !== oldProps.pixelData) {
-        this.state.texture?.destroy();
-        this.setState({
-          texture: this.context.device.createTexture({
-            width: props.pixelData.width,
-            height: props.pixelData.height,
-            data: new Float32Array(props.pixelData.data), // Force float32 for ANGLE bug workaround
-            dimension: "2d",
-            mipmaps: false,
-            sampler: {
-              minFilter: "nearest",
-              magFilter: "nearest",
-              addressModeU: "clamp-to-edge",
-              addressModeV: "clamp-to-edge",
-            },
-            format: "r32float", // Force float32 for ANGLE bug workaround
-          }),
-        });
-      }
+    super.updateState({ props, oldProps, changeFlags, ...rest });
+    if (props.pixelData !== oldProps.pixelData) {
+      this.state.texture?.destroy();
+      this.setState({
+        texture: this.context.device.createTexture({
+          width: props.pixelData.width,
+          height: props.pixelData.height,
+          data: new Float32Array(props.pixelData.data), // Force float32 for ANGLE bug workaround
+          dimension: '2d',
+          mipmaps: false,
+          sampler: {
+            minFilter: 'nearest',
+            magFilter: 'nearest',
+            addressModeU: 'clamp-to-edge',
+            addressModeV: 'clamp-to-edge',
+          },
+          format: 'r32float', // Force float32 for ANGLE bug workaround
+        }),
+      });
     }
+  }
 }
 
 export class LabelLayer extends TileLayer {
@@ -238,6 +240,7 @@ export class LabelLayer extends TileLayer {
       opacity: props.opacity,
       modelMatrix: props.modelMatrix,
       colorTexture: this.state.colorTexture,
+      valueMap: this.state.valueMap,
       bounds: [
         clamp(left, 0, width),
         clamp(top, 0, height),
@@ -284,6 +287,9 @@ export class LabelLayer extends TileLayer {
           },
           format: 'rgba8unorm',
         }),
+        valueMap: props.colors
+          ? new Map(props.colors.map((c) => [c.labelValue, c.value]))
+          : null,
       });
     }
   }
