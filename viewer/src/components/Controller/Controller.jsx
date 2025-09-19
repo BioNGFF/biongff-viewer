@@ -6,7 +6,6 @@ import Checkbox from '@mui/material/Checkbox';
 import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormGroup from '@mui/material/FormGroup';
-import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 
 import { AxisSliders } from './AxisSliders';
@@ -16,6 +15,7 @@ import { OpacitySlider } from './OpacitySlider';
 export const Controller = ({
   sourceData,
   layerStates,
+  isLabel,
   resetViewState,
   toggleVisibility,
   setLayerOpacity,
@@ -30,62 +30,78 @@ export const Controller = ({
     return (
       <React.Fragment key={layerState.layerProps.id}>
         <p>Source {index}</p>
-        <FormControlLabel
-          key={layerState.layerProps.id}
-          label={layerState.layerProps.id}
-          control={
-            <Checkbox
-              label={layerState.id}
-              checked={layerState.on}
-              icon={<VisibilityOffIcon />}
-              checkedIcon={<VisibilityIcon />}
-              onChange={() => toggleVisibility(index)}
-            />
-          }
-        />
-        <AxisSliders
-          {...sourceData[index]}
-          selections={layerState.layerProps.selections}
-          onChange={(selections) => setLayerSelections(index, selections)}
-        />
-        <OpacitySlider
-          value={layerState.layerProps.opacity}
-          onChange={(e, value) => setLayerOpacity(index, null, value)}
-        />
-        <Divider>Channels</Divider>
-        <ChannelControllers
-          {...sourceData[index]}
-          {...layerState}
-          toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
-          setChannelContrast={(i, contrast) =>
-            setChannelContrast(index, i, contrast)
-          }
-        />
-        {layerState.labels?.length && <Divider>Labels</Divider>}
-        {layerState.labels?.map((label, i) => (
-          <React.Fragment key={label.layerProps.id}>
-            {i > 0 && <Divider />}
+        {!isLabel[index] && (
+          <>
             <FormControlLabel
-              key={label.layerProps.id}
-              label={`${label.layerProps.id} (label)`}
+              key={layerState.layerProps.id}
+              label={layerState.layerProps.id}
               control={
                 <Checkbox
-                  label={label.layerProps.id}
-                  checked={label.on}
+                  label={layerState.id}
+                  checked={layerState.on}
                   icon={<VisibilityOffIcon />}
                   checkedIcon={<VisibilityIcon />}
-                  onChange={() => toggleVisibility(index, label.layerProps.id)}
+                  onChange={() => toggleVisibility(index)}
                 />
               }
             />
+            <AxisSliders
+              {...sourceData[index]}
+              selections={layerState.layerProps.selections}
+              onChange={(selections) => setLayerSelections(index, selections)}
+            />
             <OpacitySlider
-              value={label.layerProps.opacity}
-              onChange={(e, value) =>
-                setLayerOpacity(index, label.layerProps.id, value)
+              value={layerState.layerProps.opacity}
+              onChange={(e, value) => setLayerOpacity(index, null, value)}
+            />
+            <Divider>Channels</Divider>
+            <ChannelControllers
+              {...sourceData[index]}
+              {...layerState}
+              toggleChannelVisibility={(i) => toggleChannelVisibility(index, i)}
+              setChannelContrast={(i, contrast) =>
+                setChannelContrast(index, i, contrast)
               }
             />
-          </React.Fragment>
-        ))}
+          </>
+        )}
+        {layerState.labels?.length && <Divider>Labels</Divider>}
+        {layerState.labels?.map((label, i) => {
+          // if standalone label visibility is from image layer
+          const { id, on } = isLabel[index]
+            ? {
+                id: null,
+                on: layerState.on,
+              }
+            : {
+                id: label.layerProps.id,
+                on: label.on,
+              };
+          return (
+            <React.Fragment key={label.layerProps.id}>
+              {i > 0 && <Divider />}
+              <FormControlLabel
+                key={label.layerProps.id}
+                label={`${label.layerProps.id} (label)`}
+                control={
+                  <Checkbox
+                    label={label.layerProps.id}
+                    checked={on}
+                    icon={<VisibilityOffIcon />}
+                    checkedIcon={<VisibilityIcon />}
+                    onChange={() => toggleVisibility(index, id)}
+                  />
+                }
+              />
+              <OpacitySlider
+                value={label.layerProps.opacity}
+                onChange={(_e, value) =>
+                  setLayerOpacity(index, label.layerProps.id, value)
+                }
+              />
+            </React.Fragment>
+          );
+        })}
       </React.Fragment>
     );
   });

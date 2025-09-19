@@ -90,7 +90,6 @@ export const Viewer = ({
         if (layerState?.layerProps?.loader || layerState?.layerProps?.loaders) {
           const { on } = layerState;
           if (isLabel?.[index]) {
-            // @TODO: fix how controller lists layers
             return [
               new MultiscaleImageLayer({
                 ...layerState.layerProps,
@@ -352,6 +351,7 @@ export const Viewer = ({
       <Controller
         sourceData={sourceData}
         layerStates={layerStates}
+        isLabel={isLabel}
         resetViewState={resetViewState}
         toggleVisibility={toggleVisibility}
         setLayerOpacity={setLayerOpacity}
