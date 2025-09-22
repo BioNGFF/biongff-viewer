@@ -1,0 +1,1 @@
+var f=(()=>{for(var a=new Uint8Array(128),r=0;r<64;r++)a[r<26?r+65:r<52?r+71:r<62?r-4:r*4-205]=r;return e=>{for(var C=e.length,c=new Uint8Array((C-(e[C-1]=="=")-(e[C-2]=="="))*3/4|0),A=0,d=0;A<C;){var t=a[e.charCodeAt(A++)],h=a[e.charCodeAt(A++)],o=a[e.charCodeAt(A++)],n=a[e.charCodeAt(A++)];c[d++]=t<<2|h>>4,c[d++]=h<<4|o>>2,c[d++]=o<<6|n}return c}})();export{f as C};
