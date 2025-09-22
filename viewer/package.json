@@ -23,19 +23,19 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
     "@hms-dbmi/viv": "~0.17.2",
     "@hms-dbmi/vizarr": "workspace:*",
-    "@mui/icons-material": "^7.2.0",
-    "@mui/material": "^7.2.0",
     "deck.gl": "~9.0.0",
     "math.gl": "^4.1.0",
     "zarrita": "0.5.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "@mui/icons-material": "^7.2.0",
+    "@mui/material": "^7.2.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
