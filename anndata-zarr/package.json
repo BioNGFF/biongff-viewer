@@ -12,7 +12,8 @@
     ".": {
       "import": "./dist/biongff-anndata-zarr.es.js",
       "require": "./dist/biongff-anndata-zarr.cjs.js"
-    }
+    },
+    "./dist/anndata-zarr.css": "./dist/anndata-zarr.css"
   },
   "scripts": {
     "dev": "vite",
