@@ -57,22 +57,26 @@ export const getObs = async (url) => {
     ];
     const obs = { categorical: [], numerical: [] };
     for (const col of cols) {
-      const dataNode = await open(node.resolve(`obs/${col}`));
-      const { 'encoding-type': encodingType } = dataNode.attrs || {};
-      if (encodingType === 'categorical') {
-        const categoriesArr = await open(dataNode.resolve('categories'), {
-          kind: 'array',
-        });
-        const { data: categories } = await get(categoriesArr);
-        obs.categorical.push({ name: col, categories });
-      } else if (encodingType === 'array') {
-        obs.numerical.push({ name: col });
+      try {
+        const dataNode = await open(node.resolve(`obs/${col}`));
+        const { 'encoding-type': encodingType } = dataNode.attrs || {};
+        if (encodingType === 'categorical') {
+          const categoriesArr = await open(dataNode.resolve('categories'), {
+            kind: 'array',
+          });
+          const { data: categories } = await get(categoriesArr);
+          obs.categorical.push({ name: col, categories });
+        } else if (encodingType === 'array') {
+          obs.numerical.push({ name: col });
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
     return obs;
   } catch (error) {
     console.error(error);
-    return [];
+    return { categorical: [], numerical: [] };
   }
 };
 

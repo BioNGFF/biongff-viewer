@@ -138,18 +138,26 @@ export const ObsSelect = ({ adata, obsCol, onSelect, callback = () => {} }) => {
               value={obsCol}
               onChange={(e) => onSelect(e.target.value)}
             >
-              <Divider>Categorical</Divider>
-              {data.categorical.map((col) => (
-                <CategoricalCol
-                  key={col.name}
-                  col={col}
-                  showColor={obsCol === col.name}
-                />
-              ))}
-              <Divider>Numerical</Divider>
-              {data.numerical.map((col) => (
-                <NumericalCol key={col.name} col={col} />
-              ))}
+              {!!data.categorical.length && (
+                <>
+                  <Divider>Categorical</Divider>
+                  {data.categorical.map((col) => (
+                    <CategoricalCol
+                      key={col.name}
+                      col={col}
+                      showColor={obsCol === col.name}
+                    />
+                  ))}
+                </>
+              )}
+              {!!data.numerical.length && (
+                <>
+                  <Divider>Numerical</Divider>
+                  {data.numerical.map((col) => (
+                    <NumericalCol key={col.name} col={col} />
+                  ))}
+                </>
+              )}
             </RadioGroup>
           </FormControl>
         </Box>
