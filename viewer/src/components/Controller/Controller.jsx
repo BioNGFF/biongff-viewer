@@ -43,7 +43,8 @@ export const Controller = ({
               border: "3px solid white",
               padding: "25px",
               paddingTop: "0px",
-              marginTop: "10px"
+              marginTop: "10px",
+              backgroundColor: "black"
               }}>
         <h3 style={{color: "red", marginBottom: "0px", marginTop: "20px"}}>
             Source {index} </h3>
@@ -126,11 +127,11 @@ export const Controller = ({
   });
 
   return (
-    <div className="viewer-controller" style={{width: "350px"}}>
+    <div className="viewer-controller" style={(hiddenMenu ? {height: "0%"} : {})}>
       <Stack spacing={2}>
         <FormGroup>{controls}</FormGroup>
       </Stack>
-      <Grid container spacing={2} style={{position: "fixed", bottom: "15px", width: "350px"}}>
+      <Grid container spacing={2} style={{position: "fixed", bottom: "0", left: "0", width: "400px", padding: "25px"}}>
         <Grid size={5}>
         <button type="button" className="btn" onClick={resetViewState} style={{height: "100%"}}>
           Reset current view
@@ -151,7 +152,7 @@ export const Controller = ({
           {hiddenMenu ? "Show" : "Hide"} channel controls
         </button>
         </Grid>
-        </Grid>
+      </Grid>
     </div>
   );
 };
