@@ -77,8 +77,8 @@ button:focus-visible {
   padding: 0.5rem;
   overflow-y: auto;
   overflow-x: hidden;
-  width: 200px;
-  padding-right: 15px;
+  width: 350px;
+  height: 85vh;
   box-sizing: border-box;
 }
 

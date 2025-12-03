@@ -34,6 +34,7 @@ export const Viewer = ({
   isLabel = null,
   modelMatrices = null,
   colors = null,
+  hrefView,
 }) => {
   const deckRef = useRef(null);
   const [viewState, setViewState] = useState(null);
@@ -62,10 +63,15 @@ export const Viewer = ({
           }
         });
       }
+  
+      let nameList = [];
       const ls = sourceData.map((d, index) => {
         if (!d) return null;
+        let name = d.name ?? "raw", copyIndex = nameList.reduce((acc, x) => acc + (name == x ? 1 : 0), 0);
+        nameList.push(name);
+        if(copyIndex) name += "-" + String(copyIndex);
         return initLayerStateFromSource({
-          id: `raw-${index}`,
+          id: name,
           ...d,
           labels: isLabel?.[index]
             ? [
@@ -137,6 +143,15 @@ export const Viewer = ({
                     : null;
                 })
               : []),
+              new LayerStateMap[layerState.kind]({
+              ...layerState.layerProps,
+              id: layerState.layerProps.id + "-OVERVIEW",
+              visible: true,
+              pickable: false,
+              ...(layerState.kind === 'multiscale'
+                ? { excludeBackground: true }
+                : {}),
+            })
           ];
         }
         return [];
@@ -144,22 +159,30 @@ export const Viewer = ({
       .flat();
   }, [colors, isLabel, layerStates]);
 
+  const units = {"micrometer" : "um", "nanometer" : "nm", "millimeter": "mm"}
+
   const deckLayers = useMemo(() => {
     if (sourceData.length > 1 || !layers.length || !viewState) {
       return layers;
     }
     if (layers[0].props.loader?.[0]?.meta?.physicalSizes?.x) {
       const { size, unit } = layers[0].props.loader[0].meta.physicalSizes.x;
+      if(!units[unit]) return layers;
       const scalebar = new ScaleBarLayer({
         id: 'scalebar',
         size: size / layers[0].props.modelMatrix[0],
-        unit: unit,
+        unit: units[unit],
         viewState: viewState,
+        snap: true
       });
       return [...layers, scalebar];
     }
     return layers;
   }, [layers, sourceData.length, viewState]);
+
+  const layerFilter = useCallback(({layer, viewport}) => {
+    return (viewport.id == 'overview') == (layer.id.slice(-9) == '-OVERVIEW');
+  })
 
   const resetViewState = useCallback(() => {
     const { deck } = deckRef.current;
@@ -175,14 +198,25 @@ export const Viewer = ({
     });
   }, [layers]);
 
+  const setViewFromHref = useCallback(() => {
+    const { deck } = deckRef.current;
+    setViewState({
+      target: hrefView.target,
+      zoom: hrefView.zoom,
+      width: deck.width,
+      height: deck.height,
+    });
+  });
+
   useEffect(() => {
-    if (deckRef.current?.deck && !viewState && layers?.[0]) {
-      resetViewState();
+    if (deckRef.current?.deck && !viewState && layers?.[0]){
+      if(!hrefView) resetViewState();
+      else setViewFromHref();
     }
-  }, [layers, resetViewState, viewState]);
+  }, [layers, resetViewState, setViewFromHref, viewState]);
 
   const getTooltip = ({ layer, index, label, value }) => {
-    if (!layer || !index) {
+    if (!layer || !index || !label) {
       return null;
     }
     return {
@@ -274,6 +308,8 @@ export const Viewer = ({
     });
   };
 
+  const [overviewOn, toggleOverview] = React.useReducer((v) => !v, false);
+
   const toggleChannelVisibility = (index, channelIndex) => {
     setLayerStates((prev) => {
       return prev.map((state, i) => {
@@ -311,6 +347,22 @@ export const Viewer = ({
       });
     });
   };
+
+  const copyLink = () => {
+      const link = new URL(window.location.href)
+      link.searchParams.set("viewState", JSON.stringify(viewState));
+      const text = decodeURIComponent(link.href)
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.style.position = "fixed"; // Prevent scrolling to bottom of page
+      textarea.style.opacity = "0"; // Make it invisible
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+  };
+
   const { near, far } = useMemo(() => {
     if (!layers?.length) {
       return { near: 0.1, far: 1000 };
@@ -340,6 +392,53 @@ export const Viewer = ({
     };
   }, [layers]);
 
+  let moveOnOverview = () => {};
+
+  const views = [new OrthographicView({ id: 'ortho', controller: true, near, far })];
+  const div_map_props = [];
+  if(overviewOn && viewState){
+    const matrix_transform = (layers?.[0]?.props.modelMatrix ?? new Matrix4().identity());
+    const [width, height] =  matrix_transform.transformAsPoint([getLayerSize(layers[0]).width,getLayerSize(layers[0]).height]);
+
+    const overview_width = 0.2 * viewState.width, overview_height = overview_width * height / width;
+
+    div_map_props.push({position: "absolute", top: "20px", right: "20px", width: overview_width, height: overview_height, border: "3px solid yellow"});
+
+    const padding = deckRef.current.deck.width < 400 ? 10 : deckRef.current.deck.width < 600 ? 30 : 50;
+    const scale = Math.pow(2, Math.log2(Math.min((viewState.width - 2 * padding) / width, (viewState.height - 2 * padding) / height)) - viewState.zoom);
+
+    const overview_padding = 6;
+    const mapview = {top: (viewState.target[1]) * overview_height / height - overview_height * scale / 2,
+                        left: (viewState.target[0]) * overview_width / width - overview_width * scale / 2,
+                        width: overview_width * scale - overview_padding,
+                        height: overview_height * scale - overview_padding
+                        };
+    if(mapview.top < 0){
+      mapview.height += mapview.top;
+      mapview.top = 0;
+      }
+    mapview.height = Math.min(overview_height - overview_padding - mapview.top, mapview.height);
+    if(mapview.left < 0){
+      mapview.width += mapview.left;
+      mapview.left = 0;
+      }
+    mapview.width = Math.min(overview_width - overview_padding - mapview.left, mapview.width);
+
+    if(mapview.top < overview_height - overview_padding && mapview.left < overview_width - overview_padding)
+      div_map_props.push({position: "absolute", top: mapview.top,left: mapview.left, width: mapview.width, height: mapview.height, border: "3px solid red"});
+
+    views.push(new OrthographicView({ id: 'overview', controller: false, width: 2 * overview_width, height: 2 * overview_height, x: viewState.width - 2 * overview_width - 20, y: 20 - overview_height,
+      zoom: Math.log2(overview_width / width)}))
+
+    moveOnOverview = (event) => {
+      const clickX = event.clientX - viewState.width + 20 + overview_width;
+      const clickY = event.clientY - 20;
+      const clickScale = [width / overview_width, height / overview_height]
+
+      setViewState({...viewState, target: [clickScale[0] * clickX , clickScale[1] * clickY]})
+      };
+    }
+
   if (isLoading) {
     return (
       <div>
@@ -365,17 +464,29 @@ export const Viewer = ({
         setLayerSelections={setLayerSelections}
         toggleChannelVisibility={toggleChannelVisibility}
         setChannelContrast={setChannelContrast}
+        copyLink={copyLink}
+        toggleOverview={toggleOverview}
+        overviewOn={overviewOn}
       />
+
       <DeckGL
         ref={deckRef}
         layers={deckLayers}
-        viewState={viewState && { ortho: viewState }}
+        viewState={{ortho: viewState,overview: {}}}
+        layerFilter={layerFilter}
         onViewStateChange={(e) => setViewState(e.viewState)}
-        views={[
-          new OrthographicView({ id: 'ortho', controller: true, near, far }),
-        ]}
+        views={views}
         getTooltip={getTooltip}
+        getCursor={({ isDragging }) => {
+          return isDragging ? 'grabbing' : 'crosshair';
+        }}
       />
+        {
+        overviewOn && viewState &&
+        <div style={div_map_props[0]} onClick={moveOnOverview}>
+          <div style={div_map_props[1]}></div>
+        </div>
+        }
     </div>
   );
 };

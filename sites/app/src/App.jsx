@@ -26,7 +26,7 @@ function App() {
 function Page() {
   const urlString = window.location.href;
 
-  const { sources, channelAxis, isLabel, modelMatrices, anndatas } =
+  const { sources, channelAxis, isLabel, modelMatrices, anndatas, hrefView } =
     useMemo(() => {
       const url = new URL(urlString);
       const { searchParams } = url;
@@ -40,6 +40,7 @@ function Page() {
         anndatas: searchParams
           .getAll('anndata')
           .map((v) => (v ? { url: v } : null)),
+        hrefView: searchParams.getAll("viewState").map((v) => JSON.parse(v))[0],
       };
     }, [urlString]);
 
@@ -75,6 +76,7 @@ function Page() {
           isLabel={isLabel}
           modelMatrices={modelMatrices}
           colors={colors}
+          hrefView={hrefView}
         />
       </ThemeProvider>
     </>
