@@ -9,7 +9,7 @@ Leverages [Vizarr](https://github.com/hms-dbmi/vizarr).
 The viewer is built from the `main` branch and deployed with GitHub pages.
 Images are specified in the URL with the `source` parameter: e.g.
 
-https://biongff.github.io/biongff-viewer/?source=https://uk1s3.embassy.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr
+https://biongff.github.io/biongff-viewer/?source=https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr
 
 ## Development
 
