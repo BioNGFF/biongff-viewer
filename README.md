@@ -1,41 +1,62 @@
-# 🚧 BioNGFF Viewer 🚧
+# BioNGFF Viewer — archived
 
-Web viewer for bioimaging data.
-Built to support [NGFF specifications](https://ngff.openmicroscopy.org/latest/).
-Leverages [Vizarr](https://github.com/hms-dbmi/vizarr).
+> **This repository has moved to [BioNGFF/vizarr](https://github.com/BioNGFF/vizarr).**
+> Nothing here is maintained. The demo at `biongff.github.io/biongff-viewer/` now
+> forwards to the new viewer, carrying your `source` parameter with it.
 
-## Demo
+**[Open the viewer →](https://biongff.github.io/vizarr/)** ·
+**[Repository →](https://github.com/BioNGFF/vizarr)** ·
+**[Report a problem →](https://github.com/BioNGFF/vizarr/issues)**
 
-The viewer is built from the `main` branch and deployed with GitHub pages.
-Images are specified in the URL with the `source` parameter: e.g.
+## What this was
 
-https://biongff.github.io/biongff-viewer/?source=https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr
+A prototype web viewer for bioimaging data written against the
+[NGFF specifications](https://ngff.openmicroscopy.org/latest/), built on top of
+[Vizarr](https://github.com/hms-dbmi/vizarr) as a git submodule.
 
-## Development
+It did its job. Working this way showed us where the prototype's limits were: the viewer
+we wanted needed changes inside Vizarr rather than around it, and a submodule is an
+awkward place to make them. So the work moved to a fork — [BioNGFF/vizarr][new] — where
+the viewer, the tables plugin and the ROI plugin are packages in one workspace and can
+change together.
 
-Clone repo and submodules
+[new]: https://github.com/BioNGFF/vizarr
 
-```sh
-git clone git@github.com:BioNGFF/biongff-viewer.git
-cd biongff-viewer
-git submodule init
-git submodule update
+## What moved, and where it went
+
+Everything this repository did, the new one does. The last contributions here were
+carried across rather than abandoned:
+
+| here | there |
+| --- | --- |
+| [#46](https://github.com/BioNGFF/biongff-viewer/pull/46) picture-in-picture overview | [BioNGFF/vizarr#173](https://github.com/BioNGFF/vizarr/pull/173) |
+| [#46](https://github.com/BioNGFF/biongff-viewer/pull/46) scale bar units | [BioNGFF/vizarr#177](https://github.com/BioNGFF/vizarr/pull/177) |
+| [#44](https://github.com/BioNGFF/biongff-viewer/pull/44) skip obs columns that error | [BioNGFF/vizarr#179](https://github.com/BioNGFF/vizarr/pull/179) |
+
+Viewing state in the URL, the copy-link button and the collapsible controls from
+[#46](https://github.com/BioNGFF/biongff-viewer/pull/46) were already in the new viewer
+by other routes.
+
+## Your old links
+
+The demo forwards, and the `source` parameter is spelled the same way, so a shared link
+still opens the image it always did:
+
+```
+https://biongff.github.io/biongff-viewer/?source=…   →   https://biongff.github.io/vizarr/?source=…
 ```
 
-Install dependencies and run development server
+One parameter changed name. A standalone label image was `&isLabel=1` here; in the new
+viewer a label is given with `&label=` beside the image it belongs to. Those links need
+editing by hand.
 
-```sh
-pnpm i
-pnpm run dev
-```
+## The history
 
-Pass the resource to load through the URL source parameter
-e.g. 
-```
-http://localhost:5173?source=https://haniffa.cog.sanger.ac.uk/breast-cancer/xenium/0.0.1/morphology_mip.zarr
-```
+The code is still here and still readable — archiving freezes a repository, it does not
+hide it. Issues and pull requests stay where they are, and the branches are untouched.
+New issues belong on [BioNGFF/vizarr](https://github.com/BioNGFF/vizarr/issues).
 
-or visualise a standalone label image
-```
-http://localhost:5173/?source=https://hindlimb.cog.sanger.ac.uk/datasets/integrated-test/0.0.1/rotated/hindlimb-iss-rotated_90-label.zarr&isLabel=1
-```
+## Thanks
+
+To everyone who filed, fixed and reviewed here. The viewer you are being sent to is
+built out of that work.
