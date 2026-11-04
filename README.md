@@ -1,41 +1,48 @@
-# 🚧 BioNGFF Viewer 🚧
+# BioNGFF Viewer Prototype [archived]
 
-Web viewer for bioimaging data.
-Built to support [NGFF specifications](https://ngff.openmicroscopy.org/latest/).
-Leverages [Vizarr](https://github.com/hms-dbmi/vizarr).
+> **This repository has moved to
+> [BioNGFF/vizarr](https://github.com/BioNGFF/vizarr).**
+> Nothing here is maintained.
 
-## Demo
+**[Open the viewer](https://biongff.github.io/vizarr/)** ·
+**[Repository](https://github.com/BioNGFF/vizarr)** ·
+**[Report a problem](https://github.com/BioNGFF/vizarr/issues)**
 
-The viewer is built from the `main` branch and deployed with GitHub pages.
-Images are specified in the URL with the `source` parameter: e.g.
+## What this was
 
-https://biongff.github.io/biongff-viewer/?source=https://livingobjects.ebi.ac.uk/idr/zarr/v0.4/idr0101A/13457537.zarr
+A prototype web viewer for bioimaging data written against the
+[NGFF specifications](https://ngff.openmicroscopy.org/latest/), built on top of
+[Vizarr](https://github.com/hms-dbmi/vizarr) as a git submodule.
 
-## Development
+It did its job, but the work has now moved to a fork at
+[BioNGFF/vizarr](https://github.com/BioNGFF/vizarr), where the viewer, the tables
+plugin and the ROI plugin are packages in one workspace and can change together.
 
-Clone repo and submodules
+## What moved, and where it went
 
-```sh
-git clone git@github.com:BioNGFF/biongff-viewer.git
-cd biongff-viewer
-git submodule init
-git submodule update
-```
+Everything this repository did, the new one does. The last contributions here were
+carried across rather than abandoned:
 
-Install dependencies and run development server
+| here                                         | there                            |
+| -------------------------------------------- | -------------------------------- |
+| [#46][viewer-46] picture-in-picture overview | [BioNGFF/vizarr#173][vizarr-173] |
+| [#46][viewer-46] scale bar units             | [BioNGFF/vizarr#177][vizarr-177] |
+| [#44][viewer-44] skip obs columns that error | [BioNGFF/vizarr#179][vizarr-179] |
 
-```sh
-pnpm i
-pnpm run dev
-```
+[viewer-46]: https://github.com/BioNGFF/biongff-viewer/pull/46
+[viewer-44]: https://github.com/BioNGFF/biongff-viewer/pull/44
+[vizarr-173]: https://github.com/BioNGFF/vizarr/pull/173
+[vizarr-177]: https://github.com/BioNGFF/vizarr/pull/177
+[vizarr-179]: https://github.com/BioNGFF/vizarr/pull/179
 
-Pass the resource to load through the URL source parameter
-e.g. 
-```
-http://localhost:5173?source=https://haniffa.cog.sanger.ac.uk/breast-cancer/xenium/0.0.1/morphology_mip.zarr
-```
+## The history
 
-or visualise a standalone label image
-```
-http://localhost:5173/?source=https://hindlimb.cog.sanger.ac.uk/datasets/integrated-test/0.0.1/rotated/hindlimb-iss-rotated_90-label.zarr&isLabel=1
-```
+The code is still here and still readable, but archiving will freeze this
+repository. Any issues and pull requests stay where they are, and the branches
+are untouched. New issues belong on
+[BioNGFF/vizarr](https://github.com/BioNGFF/vizarr/issues).
+
+## Thanks
+
+To everyone who filed, fixed and reviewed here. The viewer you are being sent to is
+built out of that work.
